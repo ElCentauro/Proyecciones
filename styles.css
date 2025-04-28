@@ -1,0 +1,360 @@
+/* css/styles.css */
+
+/* --- Variables Globales (Opcional pero recomendado) --- */
+:root {
+    --bs-primary-rgb: 52, 86, 139; /* Azul Profesional - Reemplaza el primary de Bootstrap */
+    --bs-primary: #34568B;
+    --bs-secondary-rgb: 90, 109, 124;
+    --bs-secondary: #5A6D7C;
+    --bs-light-rgb: 248, 249, 250;
+    --bs-light: #f8f9fa;
+    --bs-dark-rgb: 33, 37, 41;
+    --bs-dark: #212529;
+    --bs-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --bs-body-bg: #ffffff;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --card-hover-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --border-radius: 0.375rem; /* Bootstrap's default */
+    --section-border-color: #dee2e6;
+}
+
+/* --- Estilos Generales --- */
+body {
+    padding-top: 56px; /* Altura de la navbar fija */
+    background-color: var(--bs-body-bg);
+    font-family: var(--bs-font-sans-serif);
+    color: var(--bs-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 500; /* Ligeramente más grueso para títulos */
+}
+
+/* --- Barra de Navegación --- */
+.navbar-dark {
+    /* Puedes usar el primary o un dark más intenso si prefieres */
+    /* background-color: var(--bs-primary) !important; */
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* --- Barra Lateral --- */
+#sidebar {
+    background-color: var(--bs-light);
+    border-right: 1px solid var(--section-border-color);
+    padding-top: 1rem;
+    position: sticky;
+    top: 56px; /* Debajo de la navbar */
+    height: calc(100vh - 56px); /* Altura completa menos navbar */
+    overflow-y: auto; /* Scroll si el contenido excede */
+}
+
+#sidebar .nav-link {
+    color: var(--bs-secondary);
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.25rem;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+#sidebar .nav-link:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    color: var(--bs-primary);
+}
+
+#sidebar .nav-link.active {
+    font-weight: 600;
+    color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.15);
+}
+
+#sidebar .nav-link i { /* Iconos */
+    margin-right: 0.5rem;
+    width: 1.2em; /* Alineación */
+    text-align: center;
+}
+
+/* --- Contenido Principal --- */
+main {
+    padding-top: 1.5rem;
+}
+
+.section-title {
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--bs-primary);
+    color: var(--bs-dark);
+    font-weight: 600;
+    font-size: 1.75rem; /* Más prominente */
+}
+section:first-of-type .section-title {
+     margin-top: 0; /* Quitar margen superior al primer título */
+}
+
+/* --- Tarjetas KPI --- */
+.kpi-card {
+    border: none; /* Quitar borde default */
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    margin-bottom: 1.5rem;
+    color: #fff; /* Asegurar texto blanco en fondos de color */
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.kpi-card .card-body {
+    padding: 1.25rem;
+}
+
+.kpi-card .card-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.kpi-card .card-text {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+/* Asignar colores específicos si Bootstrap no lo hace bien con text-white */
+.kpi-card.bg-primary, .kpi-card.bg-success, .kpi-card.bg-danger, .kpi-card.bg-warning, .kpi-card.bg-info {
+    color: #fff !important;
+}
+.kpi-card.bg-info {
+    color: #000 !important; /* El info de Bootstrap puede ser muy claro */
+}
+
+
+/* --- Contenedores de Gráficos --- */
+.chart-container {
+    min-height: 320px; /* Ajustar según necesidad */
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+.chart-container h4 {
+     margin-bottom: 1rem;
+     font-size: 1.1rem;
+     text-align: center;
+     color: var(--bs-secondary);
+}
+
+/* --- Tablas --- */
+.table {
+    margin-top: 1rem;
+    border: 1px solid var(--section-border-color);
+    box-shadow: var(--card-shadow);
+}
+.table thead th {
+    background-color: var(--bs-light);
+    color: var(--bs-dark);
+    font-weight: 600;
+    border-bottom-width: 2px;
+    border-color: var(--section-border-color);
+    white-space: nowrap; /* Evitar que títulos largos se rompan */
+    vertical-align: middle;
+}
+
+.table tbody td {
+    vertical-align: middle; /* Alinear contenido verticalmente */
+    font-size: 0.9rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.05); /* Hover sutil */
+}
+
+.table .badge { /* Badges dentro de tablas */
+    font-size: 0.8em;
+    padding: 0.4em 0.6em;
+}
+
+/* --- Acordeón --- */
+.accordion-item {
+    border: 1px solid var(--section-border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem; /* Espacio entre items */
+    box-shadow: var(--card-shadow);
+    overflow: hidden; /* Para que el border-radius funcione bien */
+}
+.accordion-item:first-of-type, .accordion-item:last-of-type {
+     border-radius: var(--border-radius); /* Asegurar que no se pierda el redondeo */
+}
+
+.accordion-header {
+     margin-bottom: 0; /* Reset margin */
+}
+
+.accordion-button {
+    font-weight: 500;
+    background-color: #fff;
+    color: var(--bs-dark);
+    border-radius: 0; /* Se redondea en el item */
+    transition: background-color 0.2s ease;
+}
+.accordion-button:not(.collapsed) {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    color: var(--bs-primary);
+    box-shadow: inset 0 -1px 0 var(--section-border-color); /* Línea divisoria sutil */
+}
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    border-color: transparent; /* Evitar doble borde */
+}
+.accordion-button::after { /* Personalizar icono flecha */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%235A6D7C'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+.accordion-button:not(.collapsed)::after {
+   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2334568B'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+.accordion-body {
+    padding: 1rem 1.25rem;
+    background-color: #fff; /* Fondo blanco para el contenido */
+}
+.accordion-body .list-group-item {
+    border: none; /* Quitar bordes dentro del acordeón si se usa list-group */
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* --- Formularios --- */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--bs-secondary);
+}
+
+.form-control, .form-select {
+    border-radius: var(--border-radius);
+    border-color: var(--section-border-color);
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* --- Botones --- */
+.btn {
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem; /* Ajustar padding si es necesario */
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+.btn-primary:hover {
+     background-color: darken(var(--bs-primary), 10%);
+     border-color: darken(var(--bs-primary), 12%);
+}
+
+.btn-success { /* Mantener colores semánticos */
+    background-color: #198754;
+    border-color: #198754;
+}
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+.btn-outline-secondary {
+    border-color: var(--bs-secondary);
+    color: var(--bs-secondary);
+}
+.btn-outline-secondary:hover {
+    background-color: var(--bs-secondary);
+    color: #fff;
+}
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* --- Modal --- */
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
+.modal-header {
+    background-color: var(--bs-light);
+    border-bottom: 1px solid var(--section-border-color);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+}
+.modal-header .modal-title {
+    font-weight: 600;
+    color: var(--bs-dark);
+}
+
+/* --- Alertas --- */
+.alert {
+    border-radius: var(--border-radius);
+    border-width: 1px;
+    border-style: solid;
+    padding: 1rem 1.25rem;
+}
+.alert-warning { /* Ejemplo de personalización */
+    background-color: #fff9e6; /* Fondo más suave */
+    border-color: #ffecb5;
+    color: #665120;
+}
+.alert strong {
+    font-weight: 600;
+}
+
+/* --- Scrollbar Styling (Opcional, para navegadores WebKit) --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bs-light);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--bs-secondary);
+  border-radius: 10px;
+  border: 2px solid var(--bs-light); /* Espacio alrededor */
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: darken(var(--bs-secondary), 10%);
+}
+
+/* --- Responsividad (Ajustes adicionales si Bootstrap no es suficiente) --- */
+@media (max-width: 767.98px) {
+    body {
+        padding-top: 56px; /* Mantener por navbar fija */
+    }
+    #sidebar {
+        position: static; /* Quitar sticky en móvil */
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--section-border-color);
+        box-shadow: none;
+    }
+    main {
+        padding-top: 1rem; /* Reducir espacio superior en móvil */
+    }
+    .kpi-card .card-text {
+        font-size: 1.75rem; /* Reducir tamaño KPI en móvil */
+    }
+    .section-title {
+        font-size: 1.5rem;
+    }
+}

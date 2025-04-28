@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión Financiera - Barrio Privado El Centauro</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Iconos Bootstrap (Opcional, pero usados en botones y sidebar) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Estilos Personalizados -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Favicon (Opcional) -->
+    <!-- <link rel="icon" href="favicon.ico" type="image/x-icon"> -->
+
+</head>
+<body>
+
+    <!-- Barra de Navegación Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-building me-2"></i>B.P. El Centauro - Finanzas
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item me-2">
+                         <span class="navbar-text text-white-50">
+                            Año: <span id="current-year">2024</span> <!-- Año actual / Seleccionable -->
+                         </span>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#importModal" title="Importar Datos Mensuales">
+                            <i class="bi bi-upload me-1"></i> Importar Datos
+                        </button>
+                    </li>
+                   <!-- Más opciones si son necesarias -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Barra Lateral (Navegación Principal) -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#dashboard">
+                                <i class="bi bi-speedometer2"></i> Tablero Anual
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#proyecciones">
+                                <i class="bi bi-graph-up-arrow"></i> Proyecciones
+                            </a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link" href="#detalle-gastos">
+                                <i class="bi bi-card-list"></i> Detalle Gastos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#reportes">
+                                <i class="bi bi-file-earmark-text"></i> Reportes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#gestion-financiera">
+                                <i class="bi bi-bank"></i> Gestión Financiera
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#configuracion">
+                                <i class="bi bi-gear"></i> Configuración
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Contenido Principal -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+                <!-- SECCIÓN: Tablero Anual Interactivo -->
+                <section id="dashboard">
+                    <h2 class="section-title">Tablero Anual Interactivo</h2>
+
+                    <!-- KPIs Principales -->
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card kpi-card bg-primary text-white h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-wallet2 me-1"></i> Saldo Acumulado</h5>
+                                    <p class="card-text fs-4 fw-bold" id="kpi-saldo-acumulado">$ [Valor]</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card kpi-card bg-success text-white h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-arrow-down-circle me-1"></i> Ingresos Últ. Mes</h5>
+                                    <p class="card-text fs-4 fw-bold" id="kpi-ingresos-mes">$ [Valor]</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card kpi-card bg-danger text-white h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-arrow-up-circle me-1"></i> Gastos Últ. Mes</h5>
+                                    <p class="card-text fs-4 fw-bold" id="kpi-gastos-mes">$ [Valor]</p>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card kpi-card bg-info text-dark h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-calendar-check me-1"></i> Proyección Cierre</h5>
+                                    <p class="card-text fs-4 fw-bold" id="kpi-proyeccion-cierre">$ [Valor]</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="row mt-4">
+                        <div class="col-lg-7 mb-4">
+                             <div class="card shadow-sm h-100">
+                                <div class="card-header">Evolución Mensual (Ingresos vs Gastos)</div>
+                                <div class="card-body chart-container">
+                                    <canvas id="ingresosGastosMensualChart"></canvas>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="col-lg-5 mb-4">
+                             <div class="card shadow-sm h-100">
+                                <div class="card-header">Distribución de Gastos (Último Mes)</div>
+                                <div class="card-body chart-container">
+                                    <canvas id="distribucionGastosChart"></canvas>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla Resumen Mensual -->
+                    <h4 class="mt-4">Resumen Mensual Detallado</h4>
+                    <div class="card shadow-sm">
+                        <div class="card-body p-0"> <!-- Remove padding for full-width table -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0" id="tabla-mensual"> <!-- Remove margin-bottom -->
+                                    <thead>
+                                        <tr>
+                                            <th>Mes</th>
+                                            <th>Ingresos</th>
+                                            <th>Gastos Reales</th>
+                                            <th>Saldo Mensual</th>
+                                            <th>Saldo Acumulado</th>
+                                            <th>Var. Gasto vs Mes Ant.</th>
+                                            <th>Var. Gasto vs Año Ant.</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla-mensual-body">
+                                        <!-- Filas generadas por JavaScript -->
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted p-5">Cargando datos...</td>
+                                        </tr>
+                                        <!-- Ejemplo de cómo se verá una fila -->
+                                        <!--
+                                        <tr>
+                                            <td>Enero</td>
+                                            <td>$ [Valor]</td>
+                                            <td>$ [Valor]</td>
+                                            <td>$ [Valor]</td>
+                                            <td>$ [Valor]</td>
+                                            <td><span class="badge bg-success">[+X.X%]</span></td>
+                                            <td><span class="badge bg-danger">[-Y.Y%]</span></td>
+                                            <td><button class="btn btn-sm btn-outline-primary" data-month-index="0" title="Ver Detalle Gasto"><i class="bi bi-search"></i></button></td>
+                                        </tr>
+                                        -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN: Proyecciones y Escenarios -->
+                <section id="proyecciones" class="mt-5">
+                    <h2 class="section-title">Proyecciones y Escenarios</h2>
+                    <div class="row">
+                        <div class="col-lg-5 mb-4">
+                             <div class="card shadow-sm h-100">
+                                <div class="card-header">Parámetros de Simulación</div>
+                                <div class="card-body">
+                                    <form id="form-proyeccion">
+                                        <div class="mb-3">
+                                            <label for="param-ipc" class="form-label">IPC Mensual Estimado (%)</label>
+                                            <input type="number" step="0.1" class="form-control form-control-sm" id="param-ipc" value="5.0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="param-aum-vig" class="form-label">Aum. Salarial Vigilancia (%)</label>
+                                            <input type="number" step="1" class="form-control form-control-sm" id="param-aum-vig" value="0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="param-aum-mant" class="form-label">Aum. Salarial Mantenimiento (%)</label>
+                                            <input type="number" step="1" class="form-control form-control-sm" id="param-aum-mant" value="0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="param-optimizacion" class="form-label">Escenario Optimización</label>
+                                            <select class="form-select form-select-sm" id="param-optimizacion">
+                                                <option value="base">Base (Actual)</option>
+                                                <option value="opt1">Reducción 5% Mantenimiento</option>
+                                                <option value="opt2">Cambio Proveedor Seguridad (-$10.000)</option>
+                                                <!-- Más escenarios -->
+                                            </select>
+                                        </div>
+                                        <button type="button" class="btn btn-primary w-100" id="btn-calcular-proyeccion">
+                                            <i class="bi bi-calculator me-1"></i> Calcular Proyección
+                                        </button>
+                                    </form>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="col-lg-7 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header">Resultado de la Proyección</div>
+                                <div class="card-body">
+                                     <div class="mb-3 text-center">
+                                        <strong>Proyección Cierre Anual (Escenario):</strong>
+                                        <span class="fs-5 fw-bold d-block" id="proy-cierre-escenario">$ [Valor]</span>
+                                    </div>
+                                    <div class="mb-3 text-center">
+                                        <strong>Impacto vs. Base:</strong>
+                                        <span id="proy-impacto" class="d-block">[+/- $ Valor]</span>
+                                    </div>
+                                    <div class="chart-container" style="min-height: 250px;"> <!-- Altura ajustada -->
+                                        <canvas id="proyeccionAnualChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                 <!-- SECCIÓN: Detalle de Gastos por Rubro -->
+                <section id="detalle-gastos" class="mt-5">
+                    <h2 class="section-title">Detalle de Gastos por Rubro (Último Mes)</h2>
+                     <div class="card shadow-sm">
+                         <div class="card-body">
+                            <div class="accordion" id="accordionGastos">
+                                <!-- Ejemplo de Rubro (Generado dinámicamente) -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingRemuneraciones">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRemuneraciones" aria-expanded="false" aria-controls="collapseRemuneraciones">
+                                            Remuneraciones ($ [Total Rubro])
+                                        </button>
+                                    </h2>
+                                    <div id="collapseRemuneraciones" class="accordion-collapse collapse" aria-labelledby="headingRemuneraciones" data-bs-parent="#accordionGastos">
+                                        <div class="accordion-body">
+                                            <p class="text-muted text-center p-3">Cargando detalles...</p>
+                                            <!-- Detalles generados por JS -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Aquí se añadirán más rubros dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- SECCIÓN: Reportes y Comunicación -->
+                <section id="reportes" class="mt-5">
+                    <h2 class="section-title">Generación de Reportes</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                             <div class="card shadow-sm h-100">
+                                 <div class="card-body text-center">
+                                    <h4 class="card-title"><i class="bi bi-people-fill me-1"></i> Reporte Mensual Vecinos</h4>
+                                    <p class="card-text">Genera un resumen claro del mes para comunicar.</p>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <label class="input-group-text" for="select-mes-reporte-vecino">Mes:</label>
+                                        <select class="form-select" id="select-mes-reporte-vecino">
+                                            <option selected disabled>Seleccionar...</option>
+                                            <!-- Opciones generadas por JS -->
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-outline-danger" id="btn-generar-reporte-vecino-pdf">
+                                        <i class="bi bi-file-pdf me-1"></i> Generar PDF
+                                    </button>
+                                 </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                             <div class="card shadow-sm h-100">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Reporte Detallado Interno</h4>
+                                    <p class="card-text">Exporta datos detallados para análisis interno.</p>
+                                     <div class="input-group input-group-sm mb-3">
+                                         <label class="input-group-text" for="select-mes-reporte-interno">Período:</label>
+                                         <select class="form-select" id="select-mes-reporte-interno">
+                                             <option selected disabled>Seleccionar...</option>
+                                            <!-- Opciones generadas por JS -->
+                                        </select>
+                                     </div>
+                                    <button class="btn btn-outline-success me-2" id="btn-exportar-excel">
+                                        <i class="bi bi-file-earmark-excel me-1"></i> Exportar a Excel
+                                    </button>
+                                    <button class="btn btn-outline-danger" id="btn-exportar-pdf-detallado">
+                                        <i class="bi bi-file-earmark-pdf me-1"></i> Exportar a PDF
+                                    </button>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN: Gestión Financiera Avanzada -->
+                 <section id="gestion-financiera" class="mt-5">
+                    <h2 class="section-title">Gestión Financiera Avanzada</h2>
+                     <div class="row">
+                        <div class="col-md-4 mb-3">
+                             <div class="card shadow-sm text-center h-100">
+                                 <div class="card-body">
+                                     <h5 class="card-title text-primary"><i class="bi bi-graph-up me-1"></i> Inversiones</h5>
+                                     <p class="card-text mb-1" id="gestion-inversiones-saldo">Saldo: $ [Valor]</p>
+                                     <p class="card-text text-muted small" id="gestion-inversiones-venc">Vencimiento: [Fecha]</p>
+                                 </div>
+                             </div>
+                        </div>
+                         <div class="col-md-4 mb-3">
+                             <div class="card shadow-sm text-center h-100">
+                                 <div class="card-body">
+                                     <h5 class="card-title text-success"><i class="bi bi-bank2 me-1"></i> Cuenta Corriente</h5>
+                                     <p class="card-text mb-1" id="gestion-cuenta-saldo">Disponible: $ [Valor]</p>
+                                     <p class="card-text text-muted small" id="gestion-cuenta-mov">Últ. Mov.: [Fecha]</p>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="col-md-4 mb-3">
+                             <div class="card shadow-sm text-center h-100">
+                                <div class="card-body">
+                                     <h5 class="card-title text-warning"><i class="bi bi-piggy-bank me-1"></i> Fondo de Reserva</h5>
+                                     <p class="card-text mb-1" id="gestion-reservas-saldo">Actual: $ [Valor]</p>
+                                     <p class="card-text text-muted small" id="gestion-reservas-obj">Objetivo: $ [Valor]</p>
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+                     <div class="alert alert-warning mt-3 d-none" role="alert" id="alerta-predictiva"> <!-- Oculta por defecto -->
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                        <strong>Alerta Predictiva:</strong> [Mensaje de Alerta Predictiva generado por JS]
+                        <a href="#" class="alert-link ms-2">Ver Detalles</a>
+                    </div>
+                 </section>
+
+                 <!-- SECCIÓN: Configuración -->
+                 <section id="configuracion" class="mt-5 mb-5">
+                    <h2 class="section-title">Configuración</h2>
+                     <div class="card shadow-sm">
+                         <div class="card-body">
+                             <h4 class="card-title">Rubros de Gastos Personalizables</h4>
+                             <p class="card-text">Administra los rubros utilizados para clasificar los gastos. (Funcionalidad futura)</p>
+                             <!-- Aquí iría una interfaz para gestionar los rubros -->
+                             <button class="btn btn-secondary disabled" aria-disabled="true">
+                                <i class="bi bi-pencil-square me-1"></i> Administrar Rubros (Próximamente)
+                             </button>
+                         </div>
+                     </div>
+                 </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal para Importar Datos -->
+    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"> <!-- Centrado vertical -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel"><i class="bi bi-upload me-2"></i>Importar Reporte Mensual</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-import" novalidate> <!-- Añadido novalidate para controlar validación con JS si es necesario -->
+                        <div class="mb-3">
+                             <label for="import-mes" class="form-label">Mes y Año del Reporte <span class="text-danger">*</span></label>
+                             <input type="month" class="form-control" id="import-mes" required>
+                             <div class="invalid-feedback">Por favor, selecciona el mes y año.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="import-file" class="form-label">Archivo (Excel o PDF) <span class="text-danger">*</span></label>
+                            <input class="form-control" type="file" id="import-file" accept=".xlsx, .xls, .pdf" required>
+                             <div class="invalid-feedback">Por favor, selecciona un archivo Excel o PDF.</div>
+                        </div>
+                        <div class="mb-3">
+                             <label for="import-saldo-anterior" class="form-label">Saldo Acumulado Anterior (Opcional)</label>
+                             <input type="number" step="0.01" class="form-control" id="import-saldo-anterior" placeholder="Si no se ingresa, se calcula del mes previo">
+                             <div class="form-text">Ingresa el saldo final del mes anterior si es necesario ajustar o empezar.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-confirm-import">
+                        <i class="bi bi-check-circle me-1"></i> Importar y Procesar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIBRERÍAS JAVASCRIPT -->
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- Chart.js (Gráficos) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- jsPDF & Autotable (Generación PDF) - ¡AÑADIDO! -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- SheetJS (xlsx) (Generación/Lectura Excel) - ¡AÑADIDO! -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- TU SCRIPT PRINCIPAL (Debe ir ÚLTIMO) -->
+    <script src="js/app.js"></script>
+
+</body>
+</html>
