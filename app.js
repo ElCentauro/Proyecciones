@@ -1,101 +1,112 @@
+```javascript
 // js/app.js
 
-// Envolver todo en un IIFE para evitar contaminación del scope global
 (() => {
     'use strict';
 
     // --- 1. ESTADO DE LA APLICACIÓN ---
-    // Almacenará todos los datos financieros y configuración.
-    // En una app real, esto vendría de un backend/API.
     const appState = {
-        currentYear: 2024,
+        currentYear: 2024, // El PDF es de 2025, ajustaremos si importamos
+        activeSection: 'dashboard', // Sección visible inicialmente
         config: {
-            rubros: [ // Rubros personalizables
-                { id: 'remuneraciones', nombre: 'Remuneraciones' },
-                { id: 'seguridad', nombre: 'Seguridad' },
-                { id: 'servicios_publicos', nombre: 'Servicios Públicos' },
-                { id: 'mantenimiento', nombre: 'Mantenimiento' },
-                { id: 'administracion', nombre: 'Administración' },
-                { id: 'abonos', nombre: 'Abonos' },
-                { id: 'limpieza', nombre: 'Limpieza' },
-                { id: 'legales', nombre: 'Legales' },
-                { id: 'bancarios', nombre: 'Bancarios' },
-                { id: 'varios', nombre: 'Varios' },
+            // Definición de Rubros (Coincidir con PDF y configuración deseada)
+            rubros: [
+                { id: 'remuneraciones', nombre: 'Remuneraciones', pdfId: 1 },
+                { id: 'aportes_cargas', nombre: 'Aportes y Cargas Sociales', pdfId: 2 },
+                { id: 'servicios_publicos', nombre: 'Servicios Públicos', pdfId: 3 },
+                { id: 'abonos', nombre: 'Abonos de Servicios', pdfId: 4 },
+                { id: 'mantenimiento', nombre: 'Mantenimiento P. Comunes', pdfId: 5 },
+                // OJO: El PDF salta al 7
+                { id: 'administracion', nombre: 'Gastos Administración', pdfId: 7 },
+                { id: 'bancarios', nombre: 'Gastos Bancarios', pdfId: 8 },
+                { id: 'limpieza', nombre: 'Gastos Limpieza', pdfId: 9 },
+                 // OJO: El PDF salta al 11
+                { id: 'seguridad', nombre: 'Seguridad', pdfId: 11 },
+                { id: 'legales', nombre: 'Legales', pdfId: 12 },
+                { id: 'varios', nombre: 'Varios', pdfId: 13 },
+                 // Rubros no presentes en el PDF pero que podrían existir
+                { id: 'extraordinarios', nombre: 'Gastos Extraordinarios', pdfId: null}, // Ejemplo
             ],
             meses: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
         },
         datosAnuales: {
-            // Ejemplo de datos para 2024 (rellenar con más meses o cargar dinámicamente)
-            2024: [
-                {
-                    mesIndex: 0, // Enero
-                    mesNombre: "Enero",
-                    ingresos: 550000,
-                    gastosDetalle: { // Gastos por rubro
-                        remuneraciones: { total: 150000, items: [{ desc: 'Sueldo Encargado', val: 80000 }, { desc: 'Cargas Sociales', val: 70000 }] },
-                        seguridad: { total: 120000, items: [{ desc: 'Servicio Vigilancia', val: 120000 }] },
-                        servicios_publicos: { total: 35000, items: [{ desc: 'Luz Esp. Comunes', val: 25000 }, { desc: 'Agua Riego', val: 10000 }] },
-                        mantenimiento: { total: 45000, items: [{ desc: 'Jardinería', val: 30000 }, { desc: 'Reparaciones Varias', val: 15000 }] },
-                        administracion: { total: 25000, items: [{ desc: 'Honorarios Admin.', val: 25000 }] },
-                        abonos: { total: 15000, items: [{ desc: 'Piletero', val: 15000 }] },
-                        limpieza: { total: 10000, items: [{ desc: 'Insumos Limpieza', val: 10000 }] },
-                        legales: { total: 0, items: [] },
-                        bancarios: { total: 5000, items: [{ desc: 'Mantenimiento Cuenta', val: 5000 }] },
-                        varios: { total: 2000, items: [{ desc: 'Gastos Librería', val: 2000 }] }
-                    },
-                    saldoMes: 0, // Se calculará
-                    saldoAcumulado: 100000, // Saldo inicial del año (ejemplo)
-                    gastosReales: 0, // Se calculará
-                },
-                {
-                    mesIndex: 1, // Febrero
-                    mesNombre: "Febrero",
-                    ingresos: 560000,
-                    gastosDetalle: {
-                        remuneraciones: { total: 155000, items: [{ desc: 'Sueldo Encargado', val: 82000 }, { desc: 'Cargas Sociales', val: 73000 }] },
-                        seguridad: { total: 120000, items: [{ desc: 'Servicio Vigilancia', val: 120000 }] },
-                        servicios_publicos: { total: 38000, items: [{ desc: 'Luz Esp. Comunes', val: 27000 }, { desc: 'Agua Riego', val: 11000 }] },
-                        mantenimiento: { total: 50000, items: [{ desc: 'Jardinería', val: 30000 }, { desc: 'Reparación Bomba', val: 20000 }] },
-                        administracion: { total: 25000, items: [{ desc: 'Honorarios Admin.', val: 25000 }] },
-                        abonos: { total: 15000, items: [{ desc: 'Piletero', val: 15000 }] },
-                        limpieza: { total: 12000, items: [{ desc: 'Insumos Limpieza', val: 12000 }] },
-                        legales: { total: 5000, items: [{ desc: 'Consulta Legal', val: 5000 }] },
-                        bancarios: { total: 5000, items: [{ desc: 'Mantenimiento Cuenta', val: 5000 }] },
-                        varios: { total: 3000, items: [{ desc: 'Gastos Varios', val: 3000 }] }
-                    },
-                    saldoMes: 0,
-                    saldoAcumulado: 0, // Depende del mes anterior
-                    gastosReales: 0,
-                }
-                // ... más meses
-            ]
+            // Inicialmente vacío, se llena con importación o datos por defecto
         },
-        proyeccionCache: null, // Para guardar el resultado de la última proyección
-        // --- Datos Financieros Avanzados (Ejemplos estáticos) ---
-        gestionFinanciera: {
-            inversiones: { saldo: 150000, vencimiento: '2024-12-15', tipo: 'Plazo Fijo UVA' },
-            cuentaCorriente: { saldo: 85000, ultimoMov: '2024-11-05' },
-            reservas: { saldo: 200000, objetivo: 500000, proposito: 'Fondo Obras Futuras' }
+        proyeccionCache: null,
+        gestionFinanciera: { // Valores de ejemplo actualizados
+            inversiones: { saldo: 18005079.55, vencimiento: 'N/A', tipo: 'FIMA PREMIUM CLASE A' }, // Del PDF
+            cuentaCorriente: { saldo: 5687660.89, ultimoMov: '31/03/2025' }, // Del PDF
+            reservas: { saldo: 200000, objetivo: 500000, proposito: 'Fondo Obras Futuras' } // Ejemplo
+        },
+        toastInstance: null // Para guardar la instancia del Toast
+    };
+
+    // --- DATOS SIMULADOS DEL PDF (MARZO 2025) ---
+    // Estos son los datos clave extraídos manualmente del OCR para la simulación
+    const pdfDataMarzo2025 = {
+        year: 2025,
+        monthIndex: 2, // Marzo
+        periodo: "03/2025",
+        saldoAnterior: 2761430.18,
+        ingresos: {
+            pagosTermino: 24603844.48,
+            pagosAdeudados: 1843270.17,
+            intereses: 109098.61,
+            otros: 5000000.00, // RESCATE FONDO FIMA
+            total: 31556213.26 // Suma de ingresos
+        },
+        egresos: {
+            gastosOrd: 28628717.49, // Total Gastos de pág 4
+            gastosExt: 0,
+            otros: 0,
+            total: 28628717.49 // Suma de egresos
+        },
+        saldoCierre: 5688925.95, // = saldoAnt + ingresos.total - egresos.total
+        gastosDetalle: { // Mapeado de rubros del PDF
+            'remuneraciones': { total: 2741514.27, items: [ {desc: 'GONZALEZ LUCIANO...', val: 855722.81}, /* ...otros... */ {desc: 'SEGOVIA ESPINOLA...', val: 417595.92} ]},
+            'aportes_cargas': { total: 2642728.94, items: [ {desc: 'AFIP (SUSS)...', val: 2398363.87}, /* ...otros... */ {desc: 'UTEDYC...', val: 187065.01} ]},
+            'servicios_publicos': { total: 2445648.05, items: [ {desc: 'AYSA...', val: 108421.00}, /* ...otros... */ {desc: 'TELECENTRO...', val: 3328.36} ]},
+            'abonos': { total: 472667.57, items: [ {desc: 'ADMINPROP...', val: 66812.00}, /* ...otros... */ {desc: 'DE SOUSA VALENTE...', val: 235400.00} ]},
+            'mantenimiento': { total: 273000.00, items: [ {desc: 'SALAS, ROBERTO CARLOS...', val: 273000.00} ]},
+            'administracion': { total: 998195.00, items: [ {desc: 'FEDERACION PATRONAL...', val: 68195.00}, /* ...otros... */ {desc: 'OCAMPO, CARLOS...', val: 480000.00} ]},
+            'bancarios': { total: 384934.70, items: [ {desc: 'BANCO GALICIA - IMP DEBITOS...', val: 169797.47}, /* ...otros... */ {desc: 'BANCO GALICIA - IVA/IIBB...', val: 12196.00} ]},
+            'limpieza': { total: 1111515.34, items: [ {desc: 'COOP MUNDO RECICLADO...', val: 149379.34}, {desc: 'COVELLIA...', val: 962136.00} ]},
+            'seguridad': { total: 17124415.60, items: [ {desc: 'ABELLA, IGNACIO...', val: 1700000.00}, /* ...muchos otros... */ {desc: 'SCYTHIA S.A....', val: 3090714.38} ]},
+            'legales': { total: 178430.00, items: [ {desc: 'PEÑA, CECILIA...', val: 178430.00} ]},
+            'varios': { total: 255668.02, items: [ {desc: 'CASA ZAMBIAZZO - CAJA REFLEC...', val: 58817.34}, /* ...otros... */ {desc: 'MIRVAR S.A. - COMBUSTIBLE...', val: 160000.00} ]},
+            'extraordinarios': { total: 0, items: [] } // Ejemplo
         }
     };
 
     // --- 2. SELECCIÓN DE ELEMENTOS DEL DOM ---
-    // Guardar referencias a elementos usados frecuentemente
     const elements = {
+        // Layout
+        sidebar: document.getElementById('sidebar'),
+        content: document.getElementById('content'),
+        sidebarToggle: document.getElementById('sidebarToggle'),
+        wrapper: document.querySelector('.wrapper'), // Para el overlay en móvil
+        // Nav Superior
+        sectionTitle: document.getElementById('sectionTitle'),
+        currentYearSpan: document.getElementById('current-year'),
+        // Secciones
+        appSections: document.querySelectorAll('.app-section'),
         // KPIs
         kpiSaldoAcumulado: document.getElementById('kpi-saldo-acumulado'),
         kpiIngresosMes: document.getElementById('kpi-ingresos-mes'),
         kpiGastosMes: document.getElementById('kpi-gastos-mes'),
         kpiProyeccionCierre: document.getElementById('kpi-proyeccion-cierre'),
-        currentYearSpan: document.getElementById('current-year'),
         // Tabla Mensual
+        tablaMensual: document.getElementById('tabla-mensual'),
         tablaMensualBody: document.getElementById('tabla-mensual-body'),
+        tablaMensualEmpty: document.getElementById('tabla-mensual-empty'),
         // Gráficos (Canvas)
         ingresosGastosChartCanvas: document.getElementById('ingresosGastosMensualChart'),
         distribucionGastosChartCanvas: document.getElementById('distribucionGastosChart'),
         proyeccionAnualChartCanvas: document.getElementById('proyeccionAnualChart'),
         // Acordeón Gastos
         accordionGastos: document.getElementById('accordionGastos'),
+        accordionGastosPlaceholder: document.getElementById('accordion-gastos-placeholder'),
+        accordionGastosEmpty: document.getElementById('accordion-gastos-empty'),
         // Proyecciones
         formProyeccion: document.getElementById('form-proyeccion'),
         paramIPC: document.getElementById('param-ipc'),
@@ -112,20 +123,27 @@
         btnExportarExcel: document.getElementById('btn-exportar-excel'),
         btnExportarPdfDetallado: document.getElementById('btn-exportar-pdf-detallado'),
         // Gestión Financiera
-        gestionInversionesSaldo: document.querySelector('#gestion-financiera .row > div:nth-child(1) p:nth-child(1)'),
-        gestionInversionesVenc: document.querySelector('#gestion-financiera .row > div:nth-child(1) p:nth-child(2)'),
-        gestionCuentaSaldo: document.querySelector('#gestion-financiera .row > div:nth-child(2) p:nth-child(1)'),
-        gestionCuentaMov: document.querySelector('#gestion-financiera .row > div:nth-child(2) p:nth-child(2)'),
-        gestionReservasSaldo: document.querySelector('#gestion-financiera .row > div:nth-child(3) p:nth-child(1)'),
-        gestionReservasObj: document.querySelector('#gestion-financiera .row > div:nth-child(3) p:nth-child(2)'),
-        alertaPredictiva: document.querySelector('#gestion-financiera .alert'),
+        gestionInversionesSaldo: document.getElementById('gestion-inversiones-saldo'),
+        gestionInversionesVenc: document.getElementById('gestion-inversiones-venc'),
+        gestionCuentaSaldo: document.getElementById('gestion-cuenta-saldo'),
+        gestionCuentaMov: document.getElementById('gestion-cuenta-mov'),
+        gestionReservasSaldo: document.getElementById('gestion-reservas-saldo'),
+        gestionReservasObj: document.getElementById('gestion-reservas-obj'),
+        alertaPredictiva: document.getElementById('alerta-predictiva'),
+        alertaPredictivaMensaje: document.getElementById('alerta-predictiva-mensaje'),
         // Modal Importar
-        importModal: new bootstrap.Modal(document.getElementById('importModal')), // Instancia del modal
+        importModalEl: document.getElementById('importModal'), // Elemento
+        importModal: null, // Instancia Bootstrap (se crea en init)
         formImport: document.getElementById('form-import'),
         importMes: document.getElementById('import-mes'),
         importFile: document.getElementById('import-file'),
         importSaldoAnterior: document.getElementById('import-saldo-anterior'),
         btnConfirmImport: document.getElementById('btn-confirm-import'),
+        // Toast
+        toastEl: document.getElementById('appToast'),
+        toastTitle: document.getElementById('toastTitle'),
+        toastBody: document.getElementById('toastBody'),
+        toastTimestamp: document.getElementById('toastTimestamp'),
     };
 
     // --- 3. GRÁFICOS (Chart.js Instances) ---
@@ -137,8 +155,7 @@
 
     // --- 4. FUNCIONES HELPER ---
     const formatCurrency = (value) => {
-        if (typeof value !== 'number') return '$ 0.00';
-        return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
+        return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
     const formatPercentage = (value) => {
@@ -154,57 +171,80 @@
     const getLastAvailableMonth = (year) => {
         const yearData = appState.datosAnuales[year];
         if (!yearData || yearData.length === 0) return null;
+        // Asegurarse de que estén ordenados por mes
+        yearData.sort((a, b) => a.mesIndex - b.mesIndex);
         return yearData[yearData.length - 1];
+    };
+
+    // Mostrar Toast
+    const showToast = (title, message, type = 'info') => {
+        if (!appState.toastInstance) return;
+        elements.toastTitle.textContent = title;
+        elements.toastBody.innerHTML = message; // Usar innerHTML por si hay links
+        elements.toastTimestamp.textContent = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+        // Cambiar icono/color según tipo
+        const icon = elements.toastEl.querySelector('.toast-header i');
+        icon.className = `bi ${type === 'success' ? 'bi-check-circle-fill text-success' : type === 'danger' ? 'bi-exclamation-triangle-fill text-danger' : 'bi-info-circle-fill text-primary'} rounded me-2`;
+
+        appState.toastInstance.show();
     };
 
     // --- 5. LÓGICA DE CÁLCULO ---
     const calculateYearData = (year) => {
         const yearData = appState.datosAnuales[year];
-        if (!yearData) return;
+        if (!yearData || yearData.length === 0) return;
 
-        let saldoAcumuladoAnterior = yearData[0]?.saldoAcumulado || 0; // Asume saldo inicial si no hay mes 0
+        yearData.sort((a, b) => a.mesIndex - b.mesIndex); // Asegurar orden
+
+        let saldoAcumuladoAnterior = 0;
+        // Buscar saldo del último mes del año anterior si existe
+        const prevYearData = appState.datosAnuales[year - 1];
+        if (prevYearData && prevYearData.length > 0) {
+            prevYearData.sort((a, b) => a.mesIndex - b.mesIndex);
+            saldoAcumuladoAnterior = prevYearData[prevYearData.length - 1].saldoAcumulado;
+        }
 
         yearData.forEach((mes, index) => {
-            // Calcular gastos totales del mes sumando los totales de cada rubro
-            mes.gastosReales = Object.values(mes.gastosDetalle).reduce((sum, rubro) => sum + rubro.total, 0);
-            mes.saldoMes = mes.ingresos - mes.gastosReales;
+            // Calcular gastos totales del mes (ya debería venir calculado de la importación)
+            if (!mes.gastosReales) {
+                mes.gastosReales = Object.values(mes.gastosDetalle || {}).reduce((sum, rubro) => sum + (rubro.total || 0), 0);
+            }
+            if (!mes.totalIngresosMes) {
+                 mes.totalIngresosMes = Object.values(mes.ingresos || {}).reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0);
+            }
+             // Calcular saldo del mes
+             mes.saldoMes = mes.totalIngresosMes - mes.gastosReales;
+
 
             if (index === 0) {
-                // El saldo acumulado del primer mes es su saldo inicial (si existe) + saldo del mes
-                 // Si no tiene saldoAcumulado propio, usamos el del año anterior (o 0)
-                 if (typeof mes.saldoAcumulado !== 'number') {
-                    // Aquí podríamos buscar el saldo del último mes del año anterior si existiera
-                    mes.saldoAcumulado = saldoAcumuladoAnterior + mes.saldoMes;
-                 } else {
-                     // Usa el saldo acumulado ya definido para enero (podría venir de la importación)
-                      mes.saldoAcumulado += mes.saldoMes; // Ajusta con el saldo del mes actual
-                 }
+                // Si es el primer mes, el saldo acumulado inicial es el saldoAnterior que trae el mes
+                // o el calculado del año anterior.
+                mes.saldoAcumulado = (mes.saldoAnterior ?? saldoAcumuladoAnterior) + mes.saldoMes;
             } else {
                 mes.saldoAcumulado = yearData[index - 1].saldoAcumulado + mes.saldoMes;
             }
-            saldoAcumuladoAnterior = mes.saldoAcumulado; // Actualizar para el siguiente mes
         });
     };
 
+    // Calcular variaciones (sin cambios significativos)
     const calculateVariations = (year, monthIndex) => {
         const yearData = appState.datosAnuales[year];
         if (!yearData) return { vsMesAnt: NaN, vsAnoAnt: NaN };
 
         const mesActual = yearData.find(m => m.mesIndex === monthIndex);
         const mesAnterior = yearData.find(m => m.mesIndex === monthIndex - 1);
-        // const mesAnoAnterior = appState.datosAnuales[year - 1]?.find(m => m.mesIndex === monthIndex); // Necesitaría datos del año anterior
+        const mesAnoAnterior = appState.datosAnuales[year - 1]?.find(m => m.mesIndex === monthIndex);
 
         let varMesAnt = NaN;
-        if (mesActual && mesAnterior && mesAnterior.gastosReales > 0) {
-            varMesAnt = ((mesActual.gastosReales - mesAnterior.gastosReales) / mesAnterior.gastosReales) * 100;
+        if (mesActual && mesAnterior && mesAnterior.gastosReales !== 0) {
+            varMesAnt = ((mesActual.gastosReales - mesAnterior.gastosReales) / Math.abs(mesAnterior.gastosReales)) * 100;
         }
 
         let varAnoAnt = NaN;
-        // if (mesActual && mesAnoAnterior && mesAnoAnterior.gastosReales > 0) {
-        //     varAnoAnt = ((mesActual.gastosReales - mesAnoAnterior.gastosReales) / mesAnoAnterior.gastosReales) * 100;
-        // }
-        // Simulación por falta de datos año anterior:
-        if (monthIndex > 1) varAnoAnt = Math.random() * 10 - 5; // Valor aleatorio para demo
+        if (mesActual && mesAnoAnterior && mesAnoAnterior.gastosReales !== 0) {
+            varAnoAnt = ((mesActual.gastosReales - mesAnoAnterior.gastosReales) / Math.abs(mesAnoAnterior.gastosReales)) * 100;
+        }
 
         return { vsMesAnt: varMesAnt, vsAnoAnt: varAnoAnt };
     };
@@ -218,13 +258,12 @@
             elements.kpiSaldoAcumulado.textContent = formatCurrency(0);
             elements.kpiIngresosMes.textContent = formatCurrency(0);
             elements.kpiGastosMes.textContent = formatCurrency(0);
-            // elements.kpiProyeccionCierre.textContent = formatCurrency(0); // Se calcula separado
-            return;
+        } else {
+            elements.kpiSaldoAcumulado.textContent = formatCurrency(lastMonth.saldoAcumulado);
+            elements.kpiIngresosMes.textContent = formatCurrency(lastMonth.totalIngresosMes); // Usar total calculado
+            elements.kpiGastosMes.textContent = formatCurrency(lastMonth.gastosReales);
         }
-
-        elements.kpiSaldoAcumulado.textContent = formatCurrency(lastMonth.saldoAcumulado);
-        elements.kpiIngresosMes.textContent = formatCurrency(lastMonth.ingresos);
-        elements.kpiGastosMes.textContent = formatCurrency(lastMonth.gastosReales);
+        // La proyección se actualiza por separado
         elements.currentYearSpan.textContent = year;
     };
 
@@ -233,50 +272,67 @@
         const yearData = appState.datosAnuales[year];
         elements.tablaMensualBody.innerHTML = ''; // Limpiar tabla
 
-        if (!yearData) return;
+        if (!yearData || yearData.length === 0) {
+            elements.tablaMensual.classList.add('d-none'); // Ocultar tabla
+            elements.tablaMensualEmpty.classList.remove('d-none'); // Mostrar mensaje vacío
+            return;
+        }
+
+        elements.tablaMensual.classList.remove('d-none'); // Mostrar tabla
+        elements.tablaMensualEmpty.classList.add('d-none'); // Ocultar mensaje vacío
 
         yearData.forEach(mes => {
             const variations = calculateVariations(year, mes.mesIndex);
-            const varMesAntClass = variations.vsMesAnt > 0 ? 'bg-danger' : (variations.vsMesAnt < 0 ? 'bg-success' : 'bg-secondary');
-            const varAnoAntClass = variations.vsAnoAnt > 0 ? 'bg-danger' : (variations.vsAnoAnt < 0 ? 'bg-success' : 'bg-secondary');
+            const getBadgeClass = (value) => {
+                if (isNaN(value)) return 'bg-light text-dark';
+                return value > 0 ? 'bg-danger-subtle text-danger-emphasis' : (value < 0 ? 'bg-success-subtle text-success-emphasis' : 'bg-secondary-subtle text-secondary-emphasis');
+            };
 
             const row = `
                 <tr>
-                    <td>${mes.mesNombre}</td>
-                    <td>${formatCurrency(mes.ingresos)}</td>
+                    <td>${mes.mesNombre || appState.config.meses[mes.mesIndex]}</td>
+                    <td>${formatCurrency(mes.totalIngresosMes)}</td>
                     <td>${formatCurrency(mes.gastosReales)}</td>
-                    <td class="${mes.saldoMes >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(mes.saldoMes)}</td>
-                    <td>${formatCurrency(mes.saldoAcumulado)}</td>
-                    <td><span class="badge ${isNaN(variations.vsMesAnt) ? 'bg-light text-dark' : varMesAntClass}">${formatPercentage(variations.vsMesAnt)}</span></td>
-                    <td><span class="badge ${isNaN(variations.vsAnoAnt) ? 'bg-light text-dark' : varAnoAntClass}">${formatPercentage(variations.vsAnoAnt)}</span></td>
-                    <td><button class="btn btn-sm btn-outline-primary" data-month-index="${mes.mesIndex}" title="Ver Detalle Gasto"><i class="bi bi-search"></i></button></td>
+                    <td class="${mes.saldoMes >= 0 ? 'text-success' : 'text-danger'} fw-medium">${formatCurrency(mes.saldoMes)}</td>
+                    <td class="fw-semibold">${formatCurrency(mes.saldoAcumulado)}</td>
+                    <td><span class="badge rounded-pill ${getBadgeClass(variations.vsMesAnt)}">${formatPercentage(variations.vsMesAnt)}</span></td>
+                    <td><span class="badge rounded-pill ${getBadgeClass(variations.vsAnoAnt)}">${formatPercentage(variations.vsAnoAnt)}</span></td>
+                    <td><button class="btn btn-outline-primary btn-sm" data-month-index="${mes.mesIndex}" title="Ver Detalle Gasto"><i class="bi bi-search"></i></button></td>
                 </tr>
             `;
             elements.tablaMensualBody.insertAdjacentHTML('beforeend', row);
         });
-        // Añadir listeners a los botones de detalle (si es necesario un modal específico)
     };
 
-    const renderRubrosAccordion = () => {
+    const renderRubrosAccordion = (monthData = null) => {
         elements.accordionGastos.innerHTML = ''; // Limpiar
         const year = appState.currentYear;
-        const lastMonth = getLastAvailableMonth(year);
+        const dataToShow = monthData || getLastAvailableMonth(year); // Mostrar mes específico o el último
 
-        if (!lastMonth) return;
+        elements.accordionGastosPlaceholder.classList.add('d-none'); // Ocultar placeholder
 
-        appState.config.rubros.forEach((rubroConfig, index) => {
-            const rubroData = lastMonth.gastosDetalle[rubroConfig.id] || { total: 0, items: [] };
+        if (!dataToShow || !dataToShow.gastosDetalle) {
+             elements.accordionGastosEmpty.classList.remove('d-none'); // Mostrar vacío
+             return;
+        }
+         elements.accordionGastosEmpty.classList.add('d-none'); // Ocultar vacío
+
+        appState.config.rubros.forEach((rubroConfig) => {
+            const rubroData = dataToShow.gastosDetalle[rubroConfig.id];
+            // Solo mostrar rubros que tengan datos en el mes seleccionado
+            if (!rubroData || !rubroData.total || rubroData.total === 0) return;
+
             const collapseId = `collapse${rubroConfig.id}`;
             const headingId = `heading${rubroConfig.id}`;
 
-            let itemsHtml = '<p><em>No hay gastos detallados para este rubro en el último mes.</em></p>';
+            let itemsHtml = '<p class="fst-italic text-muted small">No hay detalle de ítems disponible para este rubro.</p>';
             if (rubroData.items && rubroData.items.length > 0) {
                 itemsHtml = '<ul class="list-group list-group-flush">';
                 rubroData.items.forEach(item => {
                     itemsHtml += `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            ${item.desc || 'Item sin descripción'}
-                            <span class="badge bg-secondary rounded-pill">${formatCurrency(item.val || 0)}</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-1">
+                            <span class="text-break small">${item.desc || 'Item sin descripción'}</span>
+                            <span class="badge bg-light text-dark rounded-pill fw-normal">${formatCurrency(item.val || 0)}</span>
                         </li>
                     `;
                 });
@@ -287,7 +343,8 @@
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="${headingId}">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
-                            ${rubroConfig.nombre} (${formatCurrency(rubroData.total)})
+                            ${rubroConfig.nombre}
+                            <span class="ms-auto fw-bold">${formatCurrency(rubroData.total)}</span>
                         </button>
                     </h2>
                     <div id="${collapseId}" class="accordion-collapse collapse" aria-labelledby="${headingId}" data-bs-parent="#accordionGastos">
@@ -299,176 +356,172 @@
             `;
             elements.accordionGastos.insertAdjacentHTML('beforeend', accordionItem);
         });
+         // Si después de iterar no se añadió nada
+        if(elements.accordionGastos.innerHTML === ''){
+             elements.accordionGastosEmpty.classList.remove('d-none');
+        }
     };
 
     const renderGestionFinanciera = () => {
         const data = appState.gestionFinanciera;
-        elements.gestionInversionesSaldo.textContent = `Saldo: ${formatCurrency(data.inversiones.saldo)}`;
-        elements.gestionInversionesVenc.textContent = `Vencimiento Próximo: ${data.inversiones.vencimiento}`;
-        elements.gestionCuentaSaldo.textContent = `Saldo Disponible: ${formatCurrency(data.cuentaCorriente.saldo)}`;
-        elements.gestionCuentaMov.textContent = `Último Movimiento: ${data.cuentaCorriente.ultimoMov}`;
-        elements.gestionReservasSaldo.textContent = `Saldo Actual: ${formatCurrency(data.reservas.saldo)}`;
+        elements.gestionInversionesSaldo.textContent = formatCurrency(data.inversiones.saldo);
+        elements.gestionInversionesVenc.textContent = `Vencimiento: ${data.inversiones.vencimiento || 'N/A'}`;
+        elements.gestionCuentaSaldo.textContent = formatCurrency(data.cuentaCorriente.saldo);
+        elements.gestionCuentaMov.textContent = `Últ. Mov.: ${data.cuentaCorriente.ultimoMov || 'N/A'}`;
+        elements.gestionReservasSaldo.textContent = formatCurrency(data.reservas.saldo);
         elements.gestionReservasObj.textContent = `Objetivo: ${formatCurrency(data.reservas.objetivo)}`;
-        // La alerta predictiva es estática por ahora
-        elements.alertaPredictiva.style.display = 'block'; // O 'none' si no hay alerta
+
+        // Lógica de alerta predictiva (ejemplo simple)
+        const lastMonth = getLastAvailableMonth(appState.currentYear);
+        if (lastMonth && lastMonth.saldoAcumulado < 500000) { // Ejemplo: alerta si saldo baja de 500k
+            elements.alertaPredictivaMensaje.textContent = `El saldo acumulado (${formatCurrency(lastMonth.saldoAcumulado)}) es bajo. Se recomienda revisar gastos futuros.`;
+            elements.alertaPredictiva.classList.remove('d-none');
+        } else {
+            elements.alertaPredictiva.classList.add('d-none');
+        }
     };
 
     const populateReportDropdowns = () => {
-         const year = appState.currentYear;
+         // Misma lógica que antes, pero quizás con mejor manejo de vacío
+          const year = appState.currentYear;
          const yearData = appState.datosAnuales[year] || [];
-         elements.selectMesReporteVecino.innerHTML = '';
-         elements.selectMesReporteInterno.innerHTML = '';
+         elements.selectMesReporteVecino.innerHTML = '<option selected disabled value="">Seleccionar...</option>';
+         elements.selectMesReporteInterno.innerHTML = '<option selected disabled value="">Seleccionar...</option>';
 
-        if (yearData.length === 0) {
-             elements.selectMesReporteVecino.innerHTML = '<option disabled>No hay datos</option>';
-             elements.selectMesReporteInterno.innerHTML = '<option disabled>No hay datos</option>';
-            return;
+
+        if (yearData.length > 0) {
+            yearData.sort((a, b) => b.mesIndex - a.mesIndex); // Ordenar por mes descendente
+             // Opción para reporte anual interno
+             elements.selectMesReporteInterno.innerHTML += `<option value="anual">Año ${year} Completo</option>`;
+             // Opciones mensuales
+            yearData.forEach(mes => {
+                const optionText = `${mes.mesNombre || appState.config.meses[mes.mesIndex]} ${year}`;
+                const optionValue = `${year}-${String(mes.mesIndex + 1).padStart(2, '0')}`;
+                elements.selectMesReporteVecino.innerHTML += `<option value="${optionValue}">${optionText}</option>`;
+                elements.selectMesReporteInterno.innerHTML += `<option value="${optionValue}">${optionText}</option>`;
+            });
+        } else {
+             // Deshabilitar botones si no hay opciones
+            elements.btnGenerarReporteVecinoPdf.disabled = true;
+            elements.btnExportarExcel.disabled = true;
+            elements.btnExportarPdfDetallado.disabled = true;
         }
-
-         // Opción para reporte anual interno
-         elements.selectMesReporteInterno.innerHTML += `<option value="anual">Año ${year} Completo</option>`;
-
-         // Opciones mensuales (del más reciente al más antiguo)
-         [...yearData].reverse().forEach(mes => {
-             const optionText = `${mes.mesNombre} ${year}`;
-             const optionValue = `${year}-${String(mes.mesIndex + 1).padStart(2, '0')}`; // Formato YYYY-MM
-             elements.selectMesReporteVecino.innerHTML += `<option value="${optionValue}">${optionText}</option>`;
-             elements.selectMesReporteInterno.innerHTML += `<option value="${optionValue}">${optionText}</option>`;
-         });
     };
 
     // --- 7. LÓGICA DE GRÁFICOS ---
-    const initCharts = () => {
-        // Destruir gráficos anteriores si existen
-        Object.values(charts).forEach(chart => chart?.destroy());
+    // (La lógica de initCharts y updateProyeccionChart es similar, pero ajustar colores/opciones)
+     const initCharts = () => {
+        Object.values(charts).forEach(chart => chart?.destroy()); // Destruir anteriores
 
         const year = appState.currentYear;
         const yearData = appState.datosAnuales[year] || [];
-        const labels = yearData.map(m => m.mesNombre);
-        const ingresosData = yearData.map(m => m.ingresos);
+        yearData.sort((a, b) => a.mesIndex - b.mesIndex); // Asegurar orden cronológico
+        const labels = yearData.map(m => appState.config.meses[m.mesIndex].substring(0, 3)); // Mes abreviado
+        const ingresosData = yearData.map(m => m.totalIngresosMes);
         const gastosData = yearData.map(m => m.gastosReales);
 
-        // Gráfico Ingresos vs Gastos Mensual
-        if (elements.ingresosGastosChartCanvas) {
+        const chartOptionsBase = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }, // Leyenda más limpia por defecto
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: '#e9ecef' }, ticks: { callback: (value) => formatCurrency(value).replace('ARS', '') } } // Formato moneda simplificado
+            },
+            interaction: { intersect: false, mode: 'index' }, // Tooltips mejorados
+        };
+
+        if (elements.ingresosGastosChartCanvas && yearData.length > 0) {
             const ctx1 = elements.ingresosGastosChartCanvas.getContext('2d');
             charts.ingresosGastosMensual = new Chart(ctx1, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [
-                        {
-                            label: 'Ingresos',
-                            data: ingresosData,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            fill: false,
-                            tension: 0.1
-                        },
-                        {
-                            label: 'Gastos',
-                            data: gastosData,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            fill: false,
-                            tension: 0.1
-                        }
+                        { label: 'Ingresos', data: ingresosData, borderColor: '#198754', backgroundColor: 'rgba(25, 135, 84, 0.1)', fill: true, tension: 0.3, pointRadius: 3, pointHoverRadius: 5 },
+                        { label: 'Gastos', data: gastosData, borderColor: '#dc3545', backgroundColor: 'rgba(220, 53, 69, 0.1)', fill: true, tension: 0.3, pointRadius: 3, pointHoverRadius: 5 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { ...chartOptionsBase, plugins: { legend: { display: true, position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } } }
             });
         }
 
-        // Gráfico Distribución de Gastos (Último Mes)
         const lastMonth = getLastAvailableMonth(year);
-        if (elements.distribucionGastosChartCanvas && lastMonth) {
+        if (elements.distribucionGastosChartCanvas && lastMonth?.gastosDetalle) {
             const ctx2 = elements.distribucionGastosChartCanvas.getContext('2d');
-            const gastoLabels = appState.config.rubros.map(r => r.nombre);
-            const gastoData = appState.config.rubros.map(r => lastMonth.gastosDetalle[r.id]?.total || 0);
-            // Colores (puedes generar más si tienes muchos rubros)
-             const backgroundColors = [
-                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-                '#858796', '#5a5c69', '#f8f9fc', '#5e72e4', '#fd7e14'
-             ];
+            const gastoLabels = [];
+            const gastoData = [];
+            const backgroundColors = ['#005A9C', '#007bff', '#6c757d', '#198754', '#ffc107', '#dc3545', '#0dcaf0', '#adb5bd', '#fd7e14', '#6610f2']; // Paleta
+            let colorIndex = 0;
+
+            appState.config.rubros.forEach(r => {
+                 const totalRubro = lastMonth.gastosDetalle[r.id]?.total || 0;
+                 if (totalRubro > 0) { // Solo incluir rubros con gasto > 0
+                    gastoLabels.push(r.nombre);
+                    gastoData.push(totalRubro);
+                 }
+            });
 
             charts.distribucionGastos = new Chart(ctx2, {
-                type: 'pie', // o 'doughnut'
+                type: 'doughnut', // Más moderno que pie
                 data: {
                     labels: gastoLabels,
                     datasets: [{
-                        label: 'Distribución de Gastos',
                         data: gastoData,
                         backgroundColor: backgroundColors.slice(0, gastoLabels.length),
-                        hoverOffset: 4
+                        borderColor: var(--white-bg), // Borde blanco entre segmentos
+                        borderWidth: 2,
+                        hoverOffset: 8
                     }]
                 },
-                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }} }
+                 options: {
+                     responsive: true,
+                     maintainAspectRatio: false,
+                     cutout: '65%', // Hacer el donut más fino
+                     plugins: {
+                         legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 15 } },
+                         tooltip: { callbacks: { label: (context) => `${context.label}: ${formatCurrency(context.raw)}` } }
+                     }
+                 }
             });
         }
 
-        // Gráfico de Proyección (Inicialmente vacío o con datos base)
         if (elements.proyeccionAnualChartCanvas) {
             const ctx3 = elements.proyeccionAnualChartCanvas.getContext('2d');
-             // Datos iniciales (quizás solo saldos acumulados reales)
             const saldoAcumuladoReal = yearData.map(m => m.saldoAcumulado);
             charts.proyeccionAnual = new Chart(ctx3, {
                 type: 'line',
                 data: {
-                    labels: labels, // Inicialmente solo meses con datos reales
-                    datasets: [
-                         {
-                            label: 'Saldo Acumulado Real',
-                            data: saldoAcumuladoReal,
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            fill: false,
-                            tension: 0.1
-                        },
-                        // Se añadirá el dataset de proyección dinámicamente
-                    ]
+                    labels: labels,
+                    datasets: [ { label: 'Saldo Acumulado Real', data: saldoAcumuladoReal, borderColor: '#005A9C', backgroundColor: 'rgba(0, 90, 156, 0.1)', fill: true, tension: 0.3, pointRadius: 3, pointHoverRadius: 5 }]
                 },
-                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } } }
+                options: chartOptionsBase
             });
         }
     };
 
-     const updateProyeccionChart = (labels, realData, projectedData) => {
-        if (!charts.proyeccionAnual) return;
-
-        charts.proyeccionAnual.data.labels = labels;
-        charts.proyeccionAnual.data.datasets = [
-             {
-                label: 'Saldo Acumulado Real',
-                data: realData,
-                borderColor: 'rgba(54, 162, 235, 1)',
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                fill: false,
-                tension: 0.1,
-                pointRadius: 4, // Diferenciar puntos reales
-             },
-             {
-                label: 'Saldo Acumulado Proyectado',
-                data: projectedData,
-                borderColor: 'rgba(255, 159, 64, 1)', // Naranja para proyección
-                backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                borderDash: [5, 5], // Línea punteada
-                fill: false,
-                tension: 0.1,
-                pointRadius: 3, // Puntos más pequeños
-             }
-        ];
-        charts.proyeccionAnual.update();
+    const updateProyeccionChart = (labels, realData, projectedData) => {
+        // Lógica similar a la anterior, pero usando los nuevos estilos/colores
+         if (!charts.proyeccionAnual) return;
+         charts.proyeccionAnual.data.labels = labels.map(l => l.substring(0,3)); // Usar meses abreviados
+         charts.proyeccionAnual.data.datasets = [
+             { label: 'Saldo Real', data: realData, borderColor: '#005A9C', backgroundColor: 'rgba(0, 90, 156, 0.1)', fill: false, tension: 0.3, pointRadius: 3, pointHoverRadius: 5 },
+             { label: 'Saldo Proyectado', data: projectedData, borderColor: '#ffc107', backgroundColor: 'rgba(255, 193, 7, 0.1)', borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 3, pointHoverRadius: 5 }
+         ];
+         charts.proyeccionAnual.update();
     };
 
-
     // --- 8. LÓGICA DE PROYECCIONES ---
+    // (Sin cambios mayores en la lógica de cálculo, solo en la presentación del resultado)
     const calcularProyeccion = () => {
-        const year = appState.currentYear;
-        const dataReal = appState.datosAnuales[year] ? [...appState.datosAnuales[year]] : []; // Copia para no modificar original
+         const year = appState.currentYear;
+        const dataReal = appState.datosAnuales[year] ? [...appState.datosAnuales[year]] : [];
+        dataReal.sort((a, b) => a.mesIndex - b.mesIndex); // Asegurar orden
         const lastRealMonthIndex = dataReal.length > 0 ? dataReal[dataReal.length - 1].mesIndex : -1;
         const lastRealMonthData = dataReal.length > 0 ? dataReal[dataReal.length - 1] : null;
         let ultimoSaldoAcumulado = lastRealMonthData ? lastRealMonthData.saldoAcumulado : 0;
+        let saldoAcumuladoBase = ultimoSaldoAcumulado; // Para comparación
 
-        // Obtener parámetros del formulario
         const ipcMensual = parseFloat(elements.paramIPC.value) / 100 || 0;
         const aumVigilancia = parseFloat(elements.paramAumVig.value) / 100 || 0;
         const aumMantenimiento = parseFloat(elements.paramAumMant.value) / 100 || 0;
@@ -477,41 +530,39 @@
         const mesesProyectados = [];
         const todosLosMeses = appState.config.meses;
 
+        // Calcular Proyección Base (sin ajustes de escenario) para comparación
+        let cierreBaseProyectado = ultimoSaldoAcumulado;
+         for (let i = lastRealMonthIndex + 1; i < 12; i++) {
+             let gastosBase = lastRealMonthData?.gastosReales || 0;
+             let ingresosBase = lastRealMonthData?.totalIngresosMes || 0;
+              // Aplicar solo IPC a gastos base (simplificación)
+             gastosBase *= (1 + ipcMensual * (i - lastRealMonthIndex));
+             cierreBaseProyectado += (ingresosBase - gastosBase);
+         }
+
+        // Calcular Proyección con Escenario
+        ultimoSaldoAcumulado = lastRealMonthData ? lastRealMonthData.saldoAcumulado : 0; // Resetear saldo
         for (let i = lastRealMonthIndex + 1; i < 12; i++) {
             const mesNombre = todosLosMeses[i];
-            let ingresosEstimados = lastRealMonthData?.ingresos || 500000; // Usar último real o un default
+            let ingresosEstimados = lastRealMonthData?.totalIngresosMes || 500000;
             let gastosEstimadosDetalle = {};
-
-            // Base de gastos: Usar el último mes real como referencia
             const baseGastos = lastRealMonthData?.gastosDetalle || {};
 
-            // Aplicar estimaciones y ajustes
             appState.config.rubros.forEach(rubroConfig => {
                 let gastoBaseRubro = baseGastos[rubroConfig.id]?.total || 0;
                 let gastoProyectado = gastoBaseRubro;
+                // Aplicar IPC (ejemplo simple: acumulativo)
+                 gastoProyectado *= (1 + ipcMensual * (i - lastRealMonthIndex));
 
-                // 1. Aplicar IPC (a todos excepto quizás remuneraciones fijas)
-                if (rubroConfig.id !== 'remuneraciones') { // Ejemplo: No aplicar IPC a sueldos base
-                     gastoProyectado *= (1 + ipcMensual);
-                }
+                // Aplicar Aumentos Salariales Específicos (ejemplo: seguridad en rubro 'seguridad')
+                 if (rubroConfig.id === 'seguridad') gastoProyectado *= (1 + aumVigilancia);
+                 if (rubroConfig.id === 'mantenimiento' || rubroConfig.id === 'remuneraciones') gastoProyectado *= (1 + aumMantenimiento);
 
-                // 2. Aplicar Aumentos Salariales Específicos
-                 if (rubroConfig.id === 'seguridad') { // Asumimos que vigilancia está en seguridad
-                     gastoProyectado *= (1 + aumVigilancia);
-                 }
-                 if (rubroConfig.id === 'mantenimiento' || rubroConfig.id === 'remuneraciones') { // Incluir mantenimiento y sueldos
-                      gastoProyectado *= (1 + aumMantenimiento);
-                 }
+                // Aplicar Escenarios de Optimización
+                 if (escenarioOpt === 'opt1' && rubroConfig.id === 'mantenimiento') gastoProyectado *= 0.95;
+                 if (escenarioOpt === 'opt2' && rubroConfig.id === 'seguridad') gastoProyectado -= 10000;
 
-                 // 3. Aplicar Escenarios de Optimización (Ejemplos)
-                 if (escenarioOpt === 'opt1' && rubroConfig.id === 'mantenimiento') {
-                     gastoProyectado *= 0.95; // Reducción 5%
-                 }
-                 if (escenarioOpt === 'opt2' && rubroConfig.id === 'seguridad') {
-                     gastoProyectado -= 10000; // Reducción fija (ejemplo)
-                 }
-
-                gastosEstimadosDetalle[rubroConfig.id] = { total: gastoProyectado, items: [] }; // No detallamos items en proyección simple
+                gastosEstimadosDetalle[rubroConfig.id] = { total: gastoProyectado, items: [] };
             });
 
             const gastosRealesProyectados = Object.values(gastosEstimadosDetalle).reduce((sum, rubro) => sum + rubro.total, 0);
@@ -519,394 +570,536 @@
             ultimoSaldoAcumulado += saldoMesProyectado;
 
             mesesProyectados.push({
-                mesIndex: i,
-                mesNombre: mesNombre,
-                ingresos: ingresosEstimados,
-                gastosDetalle: gastosEstimadosDetalle, // Guardamos detalle proyectado
-                gastosReales: gastosRealesProyectados,
-                saldoMes: saldoMesProyectado,
-                saldoAcumulado: ultimoSaldoAcumulado
+                mesIndex: i, mesNombre: mesNombre, ingresos: ingresosEstimados,
+                gastosDetalle: gastosEstimadosDetalle, gastosReales: gastosRealesProyectados,
+                saldoMes: saldoMesProyectado, saldoAcumulado: ultimoSaldoAcumulado, totalIngresosMes: ingresosEstimados // Añadir para consistencia
             });
         }
 
-        // Combinar datos reales y proyectados para el gráfico
         const combinedData = [...dataReal, ...mesesProyectados];
         const projectionLabels = combinedData.map(m => m.mesNombre);
         const realSaldos = dataReal.map(m => m.saldoAcumulado);
-        // Para la línea proyectada, necesitamos rellenar con null los meses reales
-        const projectedSaldos = [
-            ...Array(dataReal.length).fill(null), // Nulls para meses reales
-            ...mesesProyectados.map(m => m.saldoAcumulado) // Saldos proyectados
-        ];
-        // Aseguramos que el último punto real conecte con el primero proyectado si existe
-        if (realSaldos.length > 0 && projectedSaldos.length > realSaldos.length) {
+        const projectedSaldos = [ ...Array(dataReal.length).fill(null), ...mesesProyectados.map(m => m.saldoAcumulado) ];
+         if (realSaldos.length > 0 && projectedSaldos.length > realSaldos.length) {
             projectedSaldos[realSaldos.length -1] = realSaldos[realSaldos.length-1];
-        }
+         }
 
-
-        // Actualizar UI
         const cierreProyectado = ultimoSaldoAcumulado;
         elements.proyCierreEscenario.textContent = formatCurrency(cierreProyectado);
 
-        // Calcular impacto vs. cierre base (proyección sin ajustes o con datos reales si ya terminó)
-        const cierreReal = dataReal.length === 12 ? dataReal[11].saldoAcumulado : null; // Si ya terminó el año
-        const impacto = cierreReal ? cierreProyectado - cierreReal : null; // O comparar vs proy. base
-        if (impacto !== null) {
-            elements.proyImpacto.textContent = `${formatCurrency(impacto)} (${formatPercentage(impacto/cierreReal*100)})`;
-            elements.proyImpacto.className = impacto >= 0 ? 'text-success' : 'text-danger';
-        } else {
-             elements.proyImpacto.textContent = '(Comparación no disponible)';
-             elements.proyImpacto.className = 'text-muted';
-        }
+        // Impacto vs Base
+        const impacto = cierreProyectado - cierreBaseProyectado;
+        elements.proyImpacto.textContent = `${formatCurrency(impacto)} (${formatPercentage(impacto / cierreBaseProyectado * 100)})`;
+        elements.proyImpacto.className = impacto >= 0 ? 'text-success' : 'text-danger';
 
-
-        // Actualizar KPI de Proyección Cierre
         elements.kpiProyeccionCierre.textContent = formatCurrency(cierreProyectado);
-
-        // Actualizar gráfico de proyección
         updateProyeccionChart(projectionLabels, realSaldos, projectedSaldos);
-
-        // Guardar la proyección para posible uso en reportes
         appState.proyeccionCache = combinedData;
+
+         showToast('Proyección Calculada', `El cierre anual proyectado es ${formatCurrency(cierreProyectado)}.`, 'success');
     };
 
-    // --- 9. LÓGICA DE IMPORTACIÓN (SIMULADA) ---
+
+    // --- 9. LÓGICA DE IMPORTACIÓN (SIMULADA CON DATOS PDF) ---
     const handleImportData = () => {
-        const mesAnio = elements.importMes.value; // Formato YYYY-MM
+        const mesAnio = elements.importMes.value;
         const fileInput = elements.importFile;
-        // const saldoAnteriorManual = elements.importSaldoAnterior.value; // Podría usarse
+        const saldoAnteriorManual = parseFloat(elements.importSaldoAnterior.value);
 
         if (!mesAnio || fileInput.files.length === 0) {
-            alert('Por favor, selecciona el mes/año y un archivo.');
+            showToast('Error de Importación', 'Selecciona mes/año y archivo.', 'danger');
             return;
         }
 
         const [yearStr, monthStr] = mesAnio.split('-');
         const year = parseInt(yearStr);
         const monthIndex = parseInt(monthStr) - 1;
+        const mesNombre = appState.config.meses[monthIndex];
 
-        console.log(`Simulando importación para ${appState.config.meses[monthIndex]} ${year}...`);
-        // ** AQUÍ IRÍA LA LÓGICA REAL DE UPLOAD AL BACKEND Y PROCESAMIENTO **
-        // fetch('/api/import', { method: 'POST', body: new FormData(elements.formImport) })
-        // .then(response => response.json())
-        // .then(processedData => { ... })
+        console.log(`Simulando importación para ${mesNombre} ${year} desde ${fileInput.files[0].name}...`);
+        // ** EN UNA APP REAL: ENVIAR fileInput.files[0] AL BACKEND AQUÍ **
+        // fetch('/api/import', { method: 'POST', body: new FormData(elements.formImport) }) ...
 
-        // --- Inicio Simulación ---
-        // Vamos a añadir/reemplazar datos de ejemplo para el mes seleccionado
-        const nuevoMesData = {
-            mesIndex: monthIndex,
-            mesNombre: appState.config.meses[monthIndex],
-            // Generar datos aleatorios o usar un preset
-            ingresos: 500000 + Math.random() * 100000,
-            gastosDetalle: {}, // Llenar con gastos simulados por rubro
-            saldoMes: 0,
-            saldoAcumulado: 0, // Se recalculará
-            gastosReales: 0,
-        };
+        let importedData;
+        // --- SIMULACIÓN: Si es Marzo 2025, usa los datos del PDF ---
+        if (year === 2025 && monthIndex === 2) {
+            console.log("Usando datos simulados del PDF para Marzo 2025");
+            importedData = JSON.parse(JSON.stringify(pdfDataMarzo2025)); // Deep copy
+            // Ajustar saldo anterior si se ingresó manualmente
+             if (!isNaN(saldoAnteriorManual)) {
+                 importedData.saldoAnterior = saldoAnteriorManual;
+                  // Recalcular saldo de cierre basado en el manual
+                 importedData.saldoCierre = saldoAnteriorManual + importedData.ingresos.total - importedData.egresos.total;
+             }
+             // Añadir totalIngresosMes y gastosReales para consistencia
+             importedData.totalIngresosMes = importedData.ingresos.total;
+             importedData.gastosReales = importedData.egresos.total;
 
-        // Simular gastos por rubro
-        let totalGastosSimulado = 0;
-        appState.config.rubros.forEach(rubro => {
-            const gastoRubro = Math.random() * 50000 + (rubro.id === 'remuneraciones' || rubro.id === 'seguridad' ? 80000 : 5000); // Más altos para algunos
-            nuevoMesData.gastosDetalle[rubro.id] = { total: gastoRubro, items: [{desc: 'Gasto Simulado', val: gastoRubro }] };
-            totalGastosSimulado += gastoRubro;
-        });
-         nuevoMesData.gastosReales = totalGastosSimulado;
-         nuevoMesData.saldoMes = nuevoMesData.ingresos - totalGastosSimulado;
-
-        // Añadir o reemplazar en el estado
-        if (!appState.datosAnuales[year]) {
-            appState.datosAnuales[year] = [];
+        } else {
+            // --- SIMULACIÓN: Para otros meses, genera datos aleatorios (como antes) ---
+            console.log("Generando datos simulados aleatorios para", mesNombre, year);
+             const ingresosSim = 500000 + Math.random() * 200000;
+             let gastosSimDetalle = {};
+             let gastosSimTotal = 0;
+             appState.config.rubros.forEach(rubro => {
+                const gastoRubro = Math.random() * 80000 + (rubro.id === 'remuneraciones' || rubro.id === 'seguridad' ? 100000 : 10000);
+                gastosSimDetalle[rubro.id] = { total: gastoRubro, items: [{desc: 'Gasto Simulado', val: gastoRubro }] };
+                gastosSimTotal += gastoRubro;
+            });
+             importedData = {
+                year: year, monthIndex: monthIndex, mesNombre: mesNombre,
+                saldoAnterior: isNaN(saldoAnteriorManual) ? undefined : saldoAnteriorManual, // Se calculará si es undefined
+                ingresos: { total: ingresosSim }, // Simplificado para simulación
+                egresos: { total: gastosSimTotal }, // Simplificado
+                gastosDetalle: gastosSimDetalle,
+                totalIngresosMes: ingresosSim,
+                gastosReales: gastosSimTotal,
+                saldoCierre: 0 // Se calculará
+            };
         }
+
+        // Añadir/Reemplazar en el estado
+        if (!appState.datosAnuales[year]) appState.datosAnuales[year] = [];
         const existingIndex = appState.datosAnuales[year].findIndex(m => m.mesIndex === monthIndex);
         if (existingIndex > -1) {
-            appState.datosAnuales[year][existingIndex] = nuevoMesData; // Reemplaza
+            appState.datosAnuales[year][existingIndex] = importedData;
         } else {
-            appState.datosAnuales[year].push(nuevoMesData); // Añade
-             // Ordenar por mes si se añaden desordenados
-             appState.datosAnuales[year].sort((a, b) => a.mesIndex - b.mesIndex);
+            appState.datosAnuales[year].push(importedData);
         }
-
-        // --- Fin Simulación ---
+        // Actualizar año actual si cambió
+        appState.currentYear = year;
 
         // Recalcular todo y actualizar UI
         calculateYearData(year);
-        renderDashboard(); // Función que renderiza todo
+        renderUI(); // Renderiza todo
         populateReportDropdowns(); // Actualizar dropdowns
 
-        elements.importModal.hide(); // Ocultar modal
-        elements.formImport.reset(); // Limpiar formulario del modal
+        elements.importModal.hide();
+        elements.formImport.reset();
 
-        // Mostrar feedback (usar un toast o alerta más elegante sería mejor)
-        alert(`Datos para ${appState.config.meses[monthIndex]} ${year} importados/actualizados (simulación).`);
+        showToast('Importación Exitosa', `Datos para ${mesNombre} ${year} procesados correctamente (simulación).`, 'success');
     };
 
-    // --- 10. LÓGICA DE GENERACIÓN DE REPORTES (Client-Side) ---
-    // ** Requiere incluir jsPDF y SheetJS (xlsx) **
-    // <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    // <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    // <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-    const generarPdfVecinos = () => {
-        if (typeof jsPDF === 'undefined') {
-             alert('Error: Librería jsPDF no cargada.');
-             return;
+    // --- 10. LÓGICA DE GENERACIÓN DE REPORTES ---
+    // (Lógica interna sin cambios mayores, pero revisar llamadas a jsPDF/SheetJS y formato)
+      const generarPdfVecinos = () => {
+        if (typeof jsPDF === 'undefined' || typeof jsPDF.API.autoTable === 'undefined') {
+            return showToast('Error', 'Librerías PDF no cargadas.', 'danger');
         }
-        const { jsPDF } = window.jspdf; // Acceder a jsPDF global
         const selectedValue = elements.selectMesReporteVecino.value;
-        if (!selectedValue) return;
+        if (!selectedValue) return showToast('Error', 'Selecciona un mes para el reporte.', 'warning');
 
         const [yearStr, monthStr] = selectedValue.split('-');
         const year = parseInt(yearStr);
         const monthIndex = parseInt(monthStr) - 1;
         const mesData = getMonthData(year, monthIndex);
 
-        if (!mesData) {
-             alert('No hay datos para el mes seleccionado.');
-             return;
-        }
+        if (!mesData) return showToast('Error', 'No hay datos para el mes seleccionado.', 'danger');
 
+        const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const fechaReporte = new Date().toLocaleDateString('es-AR');
-        const periodo = `${mesData.mesNombre} ${year}`;
+        const periodo = `${mesData.mesNombre || appState.config.meses[mesData.mesIndex]} ${year}`;
+        const pageHeight = doc.internal.pageSize.height;
+        let finalY = 0; // Track vertical position
 
-        // Encabezado
-        doc.setFontSize(18);
-        doc.text("Barrio Privado El Centauro - Resumen Mensual", 14, 20);
-        doc.setFontSize(12);
-        doc.text(`Periodo: ${periodo}`, 14, 30);
-        doc.text(`Fecha de Emisión: ${fechaReporte}`, 14, 36);
+        // Encabezado con AutoTable
+        doc.autoTable({
+            body: [
+                [{ content: 'Barrio Privado El Centauro - Resumen Mensual', styles: { halign: 'center', fontSize: 16, fontStyle: 'bold' } }],
+                [{ content: `Periodo: ${periodo} | Emisión: ${fechaReporte}`, styles: { halign: 'center', fontSize: 10 } }]
+            ],
+            theme: 'plain',
+            styles: { textColor: '#000000' },
+            startY: 15
+        });
+        finalY = doc.lastAutoTable.finalY + 10;
 
         // Resumen Financiero
-        doc.setFontSize(14);
-        doc.text("Resumen Financiero", 14, 50);
-        doc.setFontSize(10);
+        doc.setFontSize(12);
+        doc.text("Resumen Financiero", 14, finalY);
+        finalY += 5;
+        const saldoInicialCalc = mesData.saldoAnterior ?? (getMonthData(year, monthIndex - 1)?.saldoAcumulado ?? 0);
         const resumenData = [
-            ["Saldo Inicial del Mes:", formatCurrency(mesData.saldoAcumulado - mesData.saldoMes)], // Calculado
-            ["Ingresos del Mes:", formatCurrency(mesData.ingresos)],
+            ["Saldo Inicial del Mes:", formatCurrency(saldoInicialCalc)],
+            ["Ingresos Totales del Mes:", formatCurrency(mesData.totalIngresosMes)],
             ["Gastos Totales del Mes:", formatCurrency(mesData.gastosReales)],
-            ["Saldo Final del Mes:", formatCurrency(mesData.saldoAcumulado)]
+            ["Saldo al Cierre del Mes:", formatCurrency(mesData.saldoAcumulado)]
         ];
-        // Usar autoTable para el resumen
         doc.autoTable({
-            startY: 55,
-            head: [['Concepto', 'Monto']],
-            body: resumenData,
-            theme: 'grid',
-            headStyles: { fillColor: [52, 86, 139] }, // Azul primario
-            styles: { fontSize: 10 },
+            startY: finalY,
+            head: [['Concepto', 'Monto']], body: resumenData,
+            theme: 'grid', headStyles: { fillColor: [0, 90, 156] }, // Primary color
+            styles: { fontSize: 10, cellPadding: 2 },
+            columnStyles: { 1: { halign: 'right' } }
         });
+        finalY = doc.lastAutoTable.finalY + 10;
 
         // Desglose de Gastos por Rubro
-        let finalY = doc.lastAutoTable.finalY || 80; // Obtener Y después de la tabla
-        doc.setFontSize(14);
-        doc.text("Desglose de Gastos por Rubro", 14, finalY + 10);
+        doc.setFontSize(12);
+        doc.text("Desglose de Gastos por Rubro", 14, finalY);
+        finalY += 5;
         const gastosBody = appState.config.rubros.map(rubroConfig => {
-            const gasto = mesData.gastosDetalle[rubroConfig.id]?.total || 0;
-            return [rubroConfig.nombre, formatCurrency(gasto)];
-        }).filter(row => parseFloat(row[1].replace(/[^0-9,-]+/g,"").replace(',','.')) > 0); // Filtrar rubros con gasto 0
+            const gasto = mesData.gastosDetalle?.[rubroConfig.id]?.total || 0;
+            return [rubroConfig.nombre, gasto];
+        }).filter(row => row[1] > 0) // Filtrar rubros con gasto 0
+          .map(row => [row[0], formatCurrency(row[1])]); // Formatear moneda
 
         doc.autoTable({
-            startY: finalY + 15,
-            head: [['Rubro', 'Monto Total']],
-            body: gastosBody,
-            theme: 'striped',
-            headStyles: { fillColor: [90, 109, 124] }, // Gris secundario
-            styles: { fontSize: 9 },
+            startY: finalY,
+            head: [['Rubro', 'Monto Total']], body: gastosBody,
+            theme: 'striped', headStyles: { fillColor: [108, 117, 125] }, // Secondary color
+            styles: { fontSize: 9, cellPadding: 2 },
+            columnStyles: { 1: { halign: 'right' } }
         });
+        finalY = doc.lastAutoTable.finalY;
 
-        // Pie de página (opcional)
-        // doc.setFontSize(8);
-        // doc.text("Documento generado automáticamente.", 14, doc.internal.pageSize.height - 10);
+         // Numeración de páginas (opcional)
+         const pageCount = doc.internal.getNumberOfPages();
+         for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.width - 20, pageHeight - 10, { align: 'right' });
+         }
 
         doc.save(`Resumen_ElCentauro_${periodo.replace(' ','_')}.pdf`);
+        showToast('Reporte Generado', 'PDF para vecinos descargado.', 'success');
     };
 
     const exportarExcel = () => {
-        if (typeof XLSX === 'undefined') {
-             alert('Error: Librería SheetJS (xlsx) no cargada.');
-             return;
-        }
-        const selectedValue = elements.selectMesReporteInterno.value;
-        if (!selectedValue) return;
+        if (typeof XLSX === 'undefined') return showToast('Error', 'Librería Excel no cargada.', 'danger');
 
-        let dataToExport = [];
-        let sheetName = '';
+        const selectedValue = elements.selectMesReporteInterno.value;
+        if (!selectedValue) return showToast('Error', 'Selecciona un período para exportar.', 'warning');
+
+        const wb = XLSX.utils.book_new();
         let fileName = '';
-        const year = appState.currentYear; // Podría ser seleccionable
+        const year = appState.currentYear;
 
         if (selectedValue === 'anual') {
-            sheetName = `Resumen Anual ${year}`;
             fileName = `Reporte_Financiero_Anual_${year}.xlsx`;
             const yearData = appState.datosAnuales[year] || [];
-            if (yearData.length === 0) {
-                 alert('No hay datos para exportar para el año completo.');
-                 return;
-            }
-            // Formato para tabla anual
-             dataToExport.push([
-                "Mes", "Ingresos", "Gastos Totales", "Saldo Mensual", "Saldo Acumulado",
-                // Añadir columnas para cada rubro
-                ...appState.config.rubros.map(r => `Gasto ${r.nombre}`)
-            ]);
+            if (yearData.length === 0) return showToast('Info', 'No hay datos anuales para exportar.', 'info');
+
+            yearData.sort((a, b) => a.mesIndex - b.mesIndex); // Ordenar
+
+            // Hoja 1: Resumen Anual
+            let resumenAnualData = [ [ "Mes", "Ingresos", "Gastos Totales", "Saldo Mensual", "Saldo Acumulado" ] ];
+            yearData.forEach(mes => resumenAnualData.push([
+                 mes.mesNombre || appState.config.meses[mes.mesIndex], mes.totalIngresosMes, mes.gastosReales, mes.saldoMes, mes.saldoAcumulado
+             ]));
+            const wsResumen = XLSX.utils.aoa_to_sheet(resumenAnualData);
+             // Aplicar formato (ejemplo básico)
+             const rangeResumen = XLSX.utils.decode_range(wsResumen['!ref']);
+             for(let C = 1; C <= rangeResumen.e.c; C++) { // Desde columna B
+                 for(let R = 1; R <= rangeResumen.e.r; R++) {
+                     const cell_ref = XLSX.utils.encode_cell({c:C, r:R});
+                     if(wsResumen[cell_ref] && typeof wsResumen[cell_ref].v === 'number') {
+                         wsResumen[cell_ref].t = 'n';
+                         wsResumen[cell_ref].z = '$ #,##0.00';
+                     }
+                 }
+             }
+             wsResumen['!cols'] = [{wch:15}, {wch:18}, {wch:18}, {wch:18}, {wch:20}]; // Anchos estimados
+            XLSX.utils.book_append_sheet(wb, wsResumen, `Resumen ${year}`);
+
+             // Hoja 2: Detalle Gastos Anual por Rubro
+             let detalleGastosData = [ ["Mes", ...appState.config.rubros.map(r => r.nombre)] ];
              yearData.forEach(mes => {
-                const row = [
-                    mes.mesNombre,
-                    mes.ingresos,
-                    mes.gastosReales,
-                    mes.saldoMes,
-                    mes.saldoAcumulado,
-                     ...appState.config.rubros.map(r => mes.gastosDetalle[r.id]?.total || 0)
-                ];
-                dataToExport.push(row);
+                let row = [mes.mesNombre || appState.config.meses[mes.mesIndex]];
+                appState.config.rubros.forEach(rubro => {
+                    row.push(mes.gastosDetalle?.[rubro.id]?.total || 0);
+                });
+                detalleGastosData.push(row);
              });
+              const wsDetalle = XLSX.utils.aoa_to_sheet(detalleGastosData);
+               // Aplicar formato
+             const rangeDetalle = XLSX.utils.decode_range(wsDetalle['!ref']);
+             for(let C = 1; C <= rangeDetalle.e.c; C++) { // Desde columna B
+                 for(let R = 1; R <= rangeDetalle.e.r; R++) {
+                      const cell_ref = XLSX.utils.encode_cell({c:C, r:R});
+                     if(wsDetalle[cell_ref] && typeof wsDetalle[cell_ref].v === 'number') {
+                         wsDetalle[cell_ref].t = 'n';
+                         wsDetalle[cell_ref].z = '$ #,##0.00';
+                     }
+                 }
+             }
+              wsDetalle['!cols'] = [{wch:15}, ...appState.config.rubros.map(() => ({wch: 20}))];
+             XLSX.utils.book_append_sheet(wb, wsDetalle, `Gastos Rubro ${year}`);
+
         } else {
             // Exportar detalle de un mes específico
             const [yearStr, monthStr] = selectedValue.split('-');
             const monthIndex = parseInt(monthStr) - 1;
             const mesData = getMonthData(parseInt(yearStr), monthIndex);
 
-            if (!mesData) {
-                 alert('No hay datos para el mes seleccionado.');
-                 return;
-            }
-            const periodo = `${mesData.mesNombre}_${yearStr}`;
-            sheetName = `Detalle ${periodo}`;
+            if (!mesData) return showToast('Error', 'No hay datos para el mes seleccionado.', 'danger');
+
+            const periodo = `${mesData.mesNombre || appState.config.meses[mesData.mesIndex]}_${yearStr}`;
             fileName = `Reporte_Detallado_${periodo}.xlsx`;
 
-            // Hoja 1: Resumen Mensual
-            dataToExport.push(['Concepto', 'Monto']);
-            dataToExport.push(["Saldo Inicial", mesData.saldoAcumulado - mesData.saldoMes]);
-            dataToExport.push(["Ingresos", mesData.ingresos]);
-            dataToExport.push(["Gastos Totales", mesData.gastosReales]);
-            dataToExport.push(["Saldo Final", mesData.saldoAcumulado]);
-            dataToExport.push([]); // Fila vacía como separador
-            dataToExport.push(['Rubro', 'Gasto Total']);
+             // Hoja 1: Detalle Gasto Items
+             let detalleItemsData = [ ['Rubro', 'Descripción Ítem', 'Valor'] ];
              appState.config.rubros.forEach(rubroConfig => {
-                const gasto = mesData.gastosDetalle[rubroConfig.id]?.total || 0;
-                if(gasto > 0) dataToExport.push([rubroConfig.nombre, gasto]);
-            });
-
-             // Podríamos crear una segunda hoja con el detalle ÍTEM por ÍTEM si estuviera disponible
-             // let dataSheet2 = [['Rubro', 'Descripción Ítem', 'Valor']];
-             // ... Llenar dataSheet2 ...
-        }
-
-        // Crear y descargar el archivo Excel
-        const ws = XLSX.utils.aoa_to_sheet(dataToExport);
-        // Aplicar formato de número a columnas relevantes (ejemplo)
-        // Esto requiere un manejo más cuidadoso de las celdas,
-        // aquí solo se exportan los valores. Podría requerir iterar
-        // sobre las celdas en 'ws' y asignarles un formato 'z'.
-        // Ejemplo básico (puede no funcionar perfecto para todas las columnas):
-         const range = XLSX.utils.decode_range(ws['!ref']);
-         for (let R = range.s.r + 1; R <= range.e.r; ++R) { // Saltar encabezado
-             for (let C = range.s.c + 1; C <= range.e.c; ++C) { // Empezar desde segunda columna (montos)
-                 const cell_address = { c: C, r: R };
-                 const cell_ref = XLSX.utils.encode_cell(cell_address);
-                 if (ws[cell_ref] && typeof ws[cell_ref].v === 'number') {
-                      ws[cell_ref].t = 'n'; // Tipo número
-                      ws[cell_ref].z = '$ #,##0.00'; // Formato moneda ARS
+                 const rubroData = mesData.gastosDetalle?.[rubroConfig.id];
+                 if (rubroData && rubroData.items && rubroData.items.length > 0) {
+                     rubroData.items.forEach(item => {
+                         detalleItemsData.push([rubroConfig.nombre, item.desc || 'N/A', item.val || 0]);
+                     });
+                 } else if (rubroData && rubroData.total > 0) {
+                     // Si no hay items pero sí total, añadir una fila resumen
+                     detalleItemsData.push([rubroConfig.nombre, `Total Rubro (sin detalle)`, rubroData.total]);
+                 }
+             });
+             const wsItems = XLSX.utils.aoa_to_sheet(detalleItemsData);
+             // Aplicar formato
+              const rangeItems = XLSX.utils.decode_range(wsItems['!ref']);
+             for(let R = 1; R <= rangeItems.e.r; R++) {
+                 const cell_ref = XLSX.utils.encode_cell({c:2, r:R}); // Columna C (Valor)
+                 if(wsItems[cell_ref] && typeof wsItems[cell_ref].v === 'number') {
+                     wsItems[cell_ref].t = 'n';
+                     wsItems[cell_ref].z = '$ #,##0.00';
                  }
              }
-         }
-
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
-
-        // Ajustar ancho de columnas (opcional, básico)
-         const colWidths = dataToExport[0].map((_, i) => ({
-             wch: dataToExport.reduce((max, row) => Math.max(max, String(row[i] || '').length), 10) + 2 // Ancho basado en contenido + margen
-         }));
-         ws['!cols'] = colWidths;
+              wsItems['!cols'] = [{wch:25}, {wch:50}, {wch:18}];
+             XLSX.utils.book_append_sheet(wb, wsItems, `Detalle Gastos ${periodo}`);
+        }
 
         XLSX.writeFile(wb, fileName);
+        showToast('Reporte Generado', `Archivo Excel "${fileName}" descargado.`, 'success');
     };
 
-     const generarPdfDetallado = () => {
-         // Similar a generarPdfVecinos pero con mucho más detalle
-         // Podría incluir tablas por cada rubro con sus items, etc.
-         // La implementación dependerá del nivel de detalle requerido.
-          if (typeof jsPDF === 'undefined') {
-             alert('Error: Librería jsPDF no cargada.');
-             return;
+    const generarPdfDetallado = () => {
+         // Lógica similar a generarPdfVecinos pero incluyendo tablas con items de gasto
+          if (typeof jsPDF === 'undefined' || typeof jsPDF.API.autoTable === 'undefined') {
+             return showToast('Error', 'Librerías PDF no cargadas.', 'danger');
          }
-         alert('Funcionalidad "Exportar PDF Detallado" pendiente de implementación detallada.');
-         // Aquí iría una lógica parecida a generarPdfVecinos pero más extensa,
-         // posiblemente iterando sobre mesData.gastosDetalle[rubro].items y creando
-         // múltiples tablas con jspdf-autotable.
+          const selectedValue = elements.selectMesReporteInterno.value;
+         if (!selectedValue || selectedValue === 'anual') return showToast('Error', 'Selecciona un mes específico para el PDF detallado.', 'warning');
+
+         const [yearStr, monthStr] = selectedValue.split('-');
+         const year = parseInt(yearStr);
+         const monthIndex = parseInt(monthStr) - 1;
+         const mesData = getMonthData(year, monthIndex);
+
+         if (!mesData) return showToast('Error', 'No hay datos para el mes seleccionado.', 'danger');
+
+         const { jsPDF } = window.jspdf;
+         const doc = new jsPDF('p', 'pt'); // Usar puntos para más precisión con autotable
+         const fechaReporte = new Date().toLocaleDateString('es-AR');
+         const periodo = `${mesData.mesNombre || appState.config.meses[mesData.mesIndex]} ${year}`;
+         const pageHeight = doc.internal.pageSize.height;
+         let finalY = 80; // Start lower in points
+
+        // Encabezado
+         doc.setFontSize(18); doc.text("Reporte Financiero Detallado", doc.internal.pageSize.width / 2, 40, { align: 'center' });
+         doc.setFontSize(10); doc.text(`Barrio Privado El Centauro | Periodo: ${periodo} | Emisión: ${fechaReporte}`, doc.internal.pageSize.width / 2, 60, { align: 'center' });
+
+        // Resumen Financiero (opcional, similar a vecinos)
+        // ...
+
+        // Detalle Gastos por Rubro con Items
+        doc.setFontSize(14); doc.text("Detalle de Gastos por Rubro e Ítem", 40, finalY); finalY += 20;
+
+        appState.config.rubros.forEach(rubroConfig => {
+            const rubroData = mesData.gastosDetalle?.[rubroConfig.id];
+            if (rubroData && rubroData.total > 0) {
+                // Título del Rubro
+                doc.setFontSize(11);
+                doc.setFont(undefined,'bold');
+                doc.text(rubroConfig.nombre, 40, finalY);
+                doc.setFont(undefined,'normal');
+                 doc.text(`Total: ${formatCurrency(rubroData.total)}`, doc.internal.pageSize.width - 40, finalY, { align: 'right'});
+                finalY += 15;
+
+                let itemsTableBody = [];
+                if (rubroData.items && rubroData.items.length > 0) {
+                    itemsTableBody = rubroData.items.map(item => [item.desc || 'N/A', formatCurrency(item.val || 0)]);
+                } else {
+                     itemsTableBody.push(['Total Rubro (sin detalle)', formatCurrency(rubroData.total)]);
+                }
+
+                doc.autoTable({
+                    startY: finalY,
+                    head: [['Descripción Ítem', 'Valor']],
+                    body: itemsTableBody,
+                    theme: 'grid',
+                    headStyles: { fillColor: [230, 230, 230], textColor: 50, fontSize: 9, fontStyle: 'bold' },
+                    bodyStyles: { fontSize: 8, cellPadding: 3 },
+                    columnStyles: { 1: { halign: 'right' } },
+                    margin: { left: 40, right: 40 }
+                });
+                finalY = doc.lastAutoTable.finalY + 15; // Espacio entre rubros
+            }
+        });
+
+        // Numeración de páginas
+        const pageCount = doc.internal.getNumberOfPages();
+         for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.width - 40, pageHeight - 20, { align: 'right' });
+         }
+
+         doc.save(`Reporte_Detallado_ElCentauro_${periodo.replace(' ','_')}.pdf`);
+         showToast('Reporte Generado', 'PDF detallado descargado.', 'success');
      };
 
-
-    // --- 11. INICIALIZACIÓN Y MANEJADORES DE EVENTOS ---
-    const renderDashboard = () => {
-        renderDashboardKPIs();
-        renderMonthlyTable();
-        initCharts(); // Reinicializar gráficos con datos actualizados
-        renderRubrosAccordion();
-        renderGestionFinanciera();
-        // Calcular proyección base inicial (opcional)
-        // calcularProyeccion();
+    // --- 11. NAVEGACIÓN Y MANEJO DE UI ---
+    const navigateToSection = (sectionId) => {
+        // Ocultar todas las secciones
+        elements.appSections.forEach(section => section.classList.remove('active'));
+        // Mostrar la sección deseada
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+            appState.activeSection = sectionId;
+            // Actualizar título navbar
+            const sectionLink = document.querySelector(`#sidebar .nav-link[data-section="${sectionId}"]`);
+            elements.sectionTitle.textContent = sectionLink ? sectionLink.textContent.trim() : 'Detalle';
+            // Actualizar link activo en sidebar
+            document.querySelectorAll('#sidebar .nav-link').forEach(link => link.classList.remove('active'));
+            if (sectionLink) sectionLink.classList.add('active');
+            // Scroll al inicio de la sección (opcional)
+             window.scrollTo(0, 0);
+        }
     };
 
     const setupEventListeners = () => {
+        // Navegación Sidebar
+        document.querySelectorAll('#sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = link.getAttribute('data-section');
+                if (sectionId) {
+                    navigateToSection(sectionId);
+                    // Cerrar sidebar en móvil si está abierta
+                     if(window.innerWidth < 768) {
+                         document.body.classList.remove('sidebar-toggled');
+                     }
+                }
+            });
+        });
+
+         // Toggle Sidebar (Botón hamburguesa y overlay)
+        elements.sidebarToggle?.addEventListener('click', () => {
+             document.body.classList.toggle('sidebar-toggled');
+        });
+         // Cerrar sidebar si se hace clic fuera en móvil
+         document.addEventListener('click', (e) => {
+             if(window.innerWidth < 768 && document.body.classList.contains('sidebar-toggled')) {
+                // Si el clic NO es dentro del sidebar NI en el botón de toggle
+                if (!elements.sidebar.contains(e.target) && !elements.sidebarToggle.contains(e.target)) {
+                    document.body.classList.remove('sidebar-toggled');
+                 }
+             }
+         });
+
+
+        // Botones y formularios
         elements.btnConfirmImport.addEventListener('click', handleImportData);
         elements.btnCalcularProyeccion.addEventListener('click', calcularProyeccion);
         elements.btnGenerarReporteVecinoPdf.addEventListener('click', generarPdfVecinos);
         elements.btnExportarExcel.addEventListener('click', exportarExcel);
         elements.btnExportarPdfDetallado.addEventListener('click', generarPdfDetallado);
 
-        // Event listener para botones de detalle en tabla (si se necesita acción específica)
+        // Botón detalle en tabla
          elements.tablaMensualBody.addEventListener('click', (event) => {
-             if (event.target.closest('button[data-month-index]')) {
-                 const button = event.target.closest('button[data-month-index]');
+             const button = event.target.closest('button[data-month-index]');
+             if (button) {
                  const monthIndex = parseInt(button.dataset.monthIndex);
                  const year = appState.currentYear;
                  const mesData = getMonthData(year, monthIndex);
                  if (mesData) {
-                      // Acción al hacer clic en detalle: por ejemplo, mostrar detalle en el acordeón
-                      // O abrir un modal con el detalle completo de ese mes.
-                      // Por ahora, solo logueamos
-                      console.log(`Detalle solicitado para ${mesData.mesNombre} ${year}:`, mesData.gastosDetalle);
-                      // Podríamos forzar la apertura del acordeón correspondiente (requiere más lógica)
-                      // O actualizar el gráfico de torta para ESE mes
-                      updateDistribucionGastosChart(mesData);
+                     // Actualizar gráfico de torta Y acordeón para ese mes
+                     updateDistribucionGastosChart(mesData);
+                     renderRubrosAccordion(mesData); // Render acordeón con datos del mes clickeado
+                     // Opcional: Navegar a la sección de detalle si no está visible
+                     // navigateToSection('detalle-gastos');
+                     showToast('Detalle Cargado', `Mostrando detalle de gastos para ${mesData.mesNombre || appState.config.meses[mesData.mesIndex]} ${year}.`, 'info');
                  }
              }
          });
     };
 
-     // Función para actualizar el gráfico de torta dinámicamente
+     // Función para actualizar el gráfico de torta (con título dinámico)
      const updateDistribucionGastosChart = (mesData) => {
-         if (charts.distribucionGastos && mesData) {
-             const gastoLabels = appState.config.rubros.map(r => r.nombre);
-             const gastoData = appState.config.rubros.map(r => mesData.gastosDetalle[r.id]?.total || 0);
+         if (charts.distribucionGastos && mesData?.gastosDetalle) {
+             const gastoLabels = [];
+             const gastoData = [];
+             appState.config.rubros.forEach(r => {
+                  const totalRubro = mesData.gastosDetalle[r.id]?.total || 0;
+                  if (totalRubro > 0) {
+                     gastoLabels.push(r.nombre);
+                     gastoData.push(totalRubro);
+                  }
+             });
              charts.distribucionGastos.data.labels = gastoLabels;
              charts.distribucionGastos.data.datasets[0].data = gastoData;
-             charts.distribucionGastos.options.plugins.title = { // Añadir título dinámico
+              // Actualizar colores si la cantidad de rubros cambia
+             const backgroundColors = ['#005A9C', '#007bff', '#6c757d', '#198754', '#ffc107', '#dc3545', '#0dcaf0', '#adb5bd', '#fd7e14', '#6610f2'];
+             charts.distribucionGastos.data.datasets[0].backgroundColor = backgroundColors.slice(0, gastoLabels.length);
+
+             charts.distribucionGastos.options.plugins.title = {
                  display: true,
-                 text: `Distribución de Gastos - ${mesData.mesNombre} ${appState.currentYear}`
+                 text: `Gastos - ${mesData.mesNombre || appState.config.meses[mesData.mesIndex]} ${appState.currentYear}`,
+                 padding: { top: 5, bottom: 10 },
+                 font: { weight: 'bold' }
              };
              charts.distribucionGastos.update();
          }
-     }
-
+     };
 
     // --- 12. FUNCIÓN DE INICIALIZACIÓN PRINCIPAL ---
+    const renderUI = () => {
+        renderDashboardKPIs();
+        renderMonthlyTable();
+        initCharts(); // Reinicializar/actualizar gráficos
+        renderRubrosAccordion(); // Renderiza con el último mes por defecto
+        renderGestionFinanciera();
+        // Calcular proyección base inicial (opcional)
+        // calcularProyeccion(); // Podría calcularse al inicio si hay datos
+    };
+
     const init = () => {
         console.log('Inicializando aplicación El Centauro Finanzas...');
-        // Calcular datos iniciales (saldos, etc.)
+        // Inicializar instancia de Modal y Toast de Bootstrap
+        elements.importModal = new bootstrap.Modal(elements.importModalEl);
+        appState.toastInstance = new bootstrap.Toast(elements.toastEl);
+
+        // Simular carga inicial de datos (ej: último mes del año anterior o vacío)
+        // O podrías cargar Marzo 2025 por defecto para demostración:
+        handleImportDataSimulation(pdfDataMarzo2025); // Carga Marzo 2025 sin interacción
+
+        // Calcular datos (saldos acumulados)
         calculateYearData(appState.currentYear);
-        // Renderizar todos los componentes iniciales
-        renderDashboard();
+        // Renderizar UI inicial
+        renderUI();
         populateReportDropdowns();
         // Configurar listeners
         setupEventListeners();
+        // Mostrar sección inicial
+        navigateToSection(appState.activeSection);
         console.log('Aplicación lista.');
     };
 
-    // --- Ejecutar inicialización cuando el DOM esté listo ---
+     // Función auxiliar para cargar datos simulados sin pasar por el modal
+     const handleImportDataSimulation = (simulatedData) => {
+         const year = simulatedData.year;
+         const monthIndex = simulatedData.monthIndex;
+         if (!appState.datosAnuales[year]) appState.datosAnuales[year] = [];
+          const existingIndex = appState.datosAnuales[year].findIndex(m => m.mesIndex === monthIndex);
+         if (existingIndex > -1) {
+             appState.datosAnuales[year][existingIndex] = simulatedData;
+         } else {
+             appState.datosAnuales[year].push(simulatedData);
+         }
+         appState.currentYear = year;
+     };
+
+
+    // --- Ejecutar inicialización ---
     document.addEventListener('DOMContentLoaded', init);
 
 })(); // Fin del IIFE
+```
