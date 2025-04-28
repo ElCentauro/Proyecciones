@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centauro Finanzas - Dashboard</title>
+    <title>Centauro Finanzas - Dashboard v3</title> <!-- Versión para diferenciar -->
 
     <!-- Fuentes: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- Tus Estilos Personalizados -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Asegúrate que styles.css está en la misma carpeta -->
 
     <!-- Favicon -->
     <link rel="icon" href="img/favicon.png" type="image/png"> <!-- Ajusta la ruta si es necesario -->
@@ -31,7 +31,8 @@
         <!-- Sidebar -->
         <aside id="sidebar" class="app-sidebar">
             <div class="app-sidebar__brand">
-                <img src="img/logo_centauro_vector.svg" alt="Logo" height="30"> <!-- Ajusta la ruta si es necesario -->
+                <!-- Asegúrate que la ruta a tu logo es correcta, o comenta/quita la img si no la tienes -->
+                <!-- <img src="img/logo_centauro_vector.svg" alt="Logo" height="30"> -->
                 <span>Centauro Finanzas</span>
             </div>
             <nav class="app-sidebar__nav">
@@ -50,53 +51,77 @@
 
         <!-- Panel Principal (Header + Content) -->
         <div class="main-panel">
-            <!-- Header -->
+
+            <!-- =============================== -->
+            <!--      HEADER - VERIFICAR AQUÍ     -->
+            <!-- =============================== -->
             <header class="app-header">
                 <div class="container-fluid d-flex align-items-center">
+                    <!-- Botón para mostrar/ocultar sidebar en móvil -->
                     <button class="btn btn-icon sidebar-toggler d-lg-none me-2" id="sidebarToggle" aria-label="Toggle Sidebar">
                         <i class="bi bi-list"></i>
                     </button>
+
+                    <!-- Título de la página (cambia con JS) -->
                     <h1 class="page-title h5 mb-0 fw-semibold me-auto" id="sectionTitle">Tablero</h1>
+
+                    <!-- Controles del Header (lado derecho) -->
                     <div class="header-controls d-flex align-items-center">
-                        <span class="year-display me-3">Año: <strong id="current-year">2024</strong></span>
-                        <!-- ***** BOTÓN DE IMPORTAR ***** -->
+
+                        <!-- Selector/Display de Año -->
+                        <div class="year-display me-3">
+                            <i class="bi bi-calendar-event text-muted"></i> Año: <strong id="current-year">2024</strong>
+                        </div>
+
+                        <!-- ***** EL BOTÓN QUE FALTA ***** -->
                         <button class="btn btn-primary btn-sm import-btn" data-bs-toggle="modal" data-bs-target="#importModal" title="Importar Datos Mensuales">
                             <i class="bi bi-cloud-arrow-up-fill me-1"></i> Importar Datos
                         </button>
-                        <!-- ************************** -->
+                        <!-- ******************************** -->
+
+                        <!-- Menú de Usuario (Placeholder) -->
                         <div class="user-profile ms-3">
-                            <img src="img/avatar_placeholder.png" alt="Usuario" class="rounded-circle" width="36" height="36"> <!-- Ajusta la ruta si es necesario -->
+                             <!-- Asegúrate que la ruta a tu avatar es correcta, o comenta/quita la img -->
+                            <!-- <img src="img/avatar_placeholder.png" alt="Usuario" class="rounded-circle" width="36" height="36"> -->
+                             <i class="bi bi-person-circle fs-4 text-secondary"></i> <!-- Icono placeholder si no hay imagen -->
                         </div>
                     </div>
+                    <!-- Fin Controles del Header -->
+
                 </div>
             </header>
+            <!-- =============================== -->
+            <!--    FIN HEADER - VERIFICAR AQUÍ    -->
+            <!-- =============================== -->
+
 
             <!-- Contenido Principal -->
             <main id="main-content" class="app-content">
+
                 <!-- SECCIÓN: Dashboard -->
                 <section id="dashboard" class="app-section active">
                     <!-- KPIs -->
                     <div class="kpi-grid">
-                         <div class="widget kpi-widget"><div class="kpi-icon bg-primary-light text-primary"><i class="bi bi-bank"></i></div><div class="kpi-info"><div class="kpi-label">Saldo Acumulado</div><div class="kpi-value loading"><span class="placeholder"></span><span class="value" id="kpi-saldo-acumulado">$ 0,00</span></div></div></div>
-                         <div class="widget kpi-widget"><div class="kpi-icon bg-success-light text-success"><i class="bi bi-arrow-down-circle-fill"></i></div><div class="kpi-info"><div class="kpi-label">Ingresos Últ. Mes</div><div class="kpi-value loading"><span class="placeholder"></span><span class="value" id="kpi-ingresos-mes">$ 0,00</span></div></div></div>
-                         <div class="widget kpi-widget"><div class="kpi-icon bg-danger-light text-danger"><i class="bi bi-arrow-up-circle-fill"></i></div><div class="kpi-info"><div class="kpi-label">Gastos Últ. Mes</div><div class="kpi-value loading"><span class="placeholder"></span><span class="value" id="kpi-gastos-mes">$ 0,00</span></div></div></div>
-                         <div class="widget kpi-widget"><div class="kpi-icon bg-info-light text-info"><i class="bi bi-calendar-check-fill"></i></div><div class="kpi-info"><div class="kpi-label">Proyección Cierre</div><div class="kpi-value loading"><span class="placeholder"></span><span class="value" id="kpi-proyeccion-cierre">$ 0,00</span></div></div></div>
+                        <div class="widget kpi-widget"><div class="kpi-icon bg-primary-light text-primary"><i class="bi bi-bank"></i></div><div class="kpi-info"><div class="kpi-label">Saldo Acumulado</div><div class="kpi-value loading"><span class="placeholder"></span><span class="value" id="kpi-saldo-acumulado">$ 0,00</span></div></div></div>
+                        <div class="widget kpi-widget"><div class="kpi-icon bg-success-light text-success"><i class="bi bi-arrow-down-circle-fill"></i></div><div class="kpi-info"><div class="kpi-label">Ingresos Últ. Mes</div><div class="kpi-value loading"><span class="placeholder"></span><span class="value" id="kpi-ingresos-mes">$ 0,00</span></div></div></div>
+                        <div class="widget kpi-widget"><div class="kpi-icon bg-danger-light text-danger"><i class="bi bi-arrow-up-circle-fill"></i></div><div class="kpi-info"><div class="kpi-label">Gastos Últ. Mes</div><div class="kpi-value loading"><span class="placeholder"></span><span class="value" id="kpi-gastos-mes">$ 0,00</span></div></div></div>
+                        <div class="widget kpi-widget"><div class="kpi-icon bg-info-light text-info"><i class="bi bi-calendar-check-fill"></i></div><div class="kpi-info"><div class="kpi-label">Proyección Cierre</div><div class="kpi-value loading"><span class="placeholder"></span><span class="value" id="kpi-proyeccion-cierre">$ 0,00</span></div></div></div>
                     </div>
                     <!-- Gráficos -->
                     <div class="row g-4 mb-4">
                         <div class="col-lg-7"><div class="widget chart-widget"><h2 class="widget__title">Evolución Mensual</h2><div class="widget__body"><div class="chart-container loading"><canvas id="ingresosGastosMensualChart"></canvas><div class="chart-loader"><div class="spinner-border spinner-border-sm"></div></div></div></div></div></div>
-                         <div class="col-lg-5"><div class="widget chart-widget"><h2 class="widget__title">Distribución Gastos (Últ. Mes)</h2><div class="widget__body"><div class="chart-container loading"><canvas id="distribucionGastosChart"></canvas><div class="chart-loader"><div class="spinner-border spinner-border-sm"></div></div></div></div></div></div>
+                        <div class="col-lg-5"><div class="widget chart-widget"><h2 class="widget__title">Distribución Gastos (Últ. Mes)</h2><div class="widget__body"><div class="chart-container loading"><canvas id="distribucionGastosChart"></canvas><div class="chart-loader"><div class="spinner-border spinner-border-sm"></div></div></div></div></div></div>
                     </div>
-                     <!-- Tabla -->
-                     <div class="widget table-widget"><h2 class="widget__title">Resumen Mensual</h2><div class="widget__body--nopad"><div class="table-responsive"><table class="table table-custom" id="tabla-mensual"><thead><tr><th>Mes</th><th>Ingresos</th><th>Gastos</th><th>Saldo</th><th>Acumulado</th><th>Var. Mes%</th><th>Var. Año%</th><th class="text-end">Detalle</th></tr></thead><tbody id="tabla-mensual-body"><tr class="placeholder-row"><td colspan="8"><div class="placeholder"></div></td></tr><tr class="placeholder-row"><td colspan="8"><div class="placeholder"></div></td></tr><tr class="placeholder-row"><td colspan="8"><div class="placeholder"></div></td></tr></tbody></table></div><div id="tabla-mensual-empty" class="widget-empty-state d-none"><i class="bi bi-table"></i><p>No hay datos mensuales.</p></div></div></div>
+                    <!-- Tabla -->
+                    <div class="widget table-widget"><h2 class="widget__title">Resumen Mensual</h2><div class="widget__body--nopad"><div class="table-responsive"><table class="table table-custom" id="tabla-mensual"><thead><tr><th>Mes</th><th>Ingresos</th><th>Gastos</th><th>Saldo</th><th>Acumulado</th><th>Var. Mes%</th><th>Var. Año%</th><th class="text-end">Detalle</th></tr></thead><tbody id="tabla-mensual-body"><tr class="placeholder-row"><td colspan="8"><div class="placeholder"></div></td></tr><tr class="placeholder-row"><td colspan="8"><div class="placeholder"></div></td></tr><tr class="placeholder-row"><td colspan="8"><div class="placeholder"></div></td></tr></tbody></table></div><div id="tabla-mensual-empty" class="widget-empty-state d-none"><i class="bi bi-table"></i><p>No hay datos mensuales.</p></div></div></div>
                 </section>
 
-                <!-- Resto de secciones (Proyecciones, Detalle Gastos, Reportes, etc.) -->
-                <section id="proyecciones" class="app-section"><!-- Contenido Proyecciones --></section>
-                <section id="detalle-gastos" class="app-section"><!-- Contenido Detalle Gastos --></section>
-                <section id="gestion-financiera" class="app-section"><!-- Contenido Gestión Financiera --></section>
-                <section id="reportes" class="app-section"><!-- Contenido Reportes --></section>
-                <section id="configuracion" class="app-section"><!-- Contenido Configuración --></section>
+                <!-- Resto de secciones (Proyecciones, Detalle, etc.) -->
+                <section id="proyecciones" class="app-section"><!-- ... (Contenido igual que antes) ... --></section>
+                <section id="detalle-gastos" class="app-section"><!-- ... (Contenido igual que antes) ... --></section>
+                <section id="gestion-financiera" class="app-section"><!-- ... (Contenido igual que antes) ... --></section>
+                <section id="reportes" class="app-section"><!-- ... (Contenido igual que antes) ... --></section>
+                <section id="configuracion" class="app-section"><!-- ... (Contenido igual que antes) ... --></section>
 
             </main>
 
@@ -104,8 +129,8 @@
             <footer class="app-footer">
                  <small>© <span id="footer-year">2024</span> Barrio Privado El Centauro</small>
              </footer>
-        </div>
-    </div>
+        </div> <!-- Fin .main-panel -->
+    </div> <!-- Fin .app-container -->
 
     <!-- Modal Importar Datos -->
     <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
@@ -144,7 +169,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <!-- Tu Script Principal -->
-    <script src="app.js"></script>
+    <script src="app.js"></script> <!-- Asegúrate que app.js está en la misma carpeta -->
 
 </body>
 </html>
